@@ -6,20 +6,46 @@ use App\Http\Controllers\Controller;
 use App\Models\KategoriLomba;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
+use DataTables;
 
 class KategoriLombaController extends Controller
 {
     use LogsActivity;
     
-    public function index()
+    public function index(Request $request)
     {
-        $kategoris = KategoriLomba::with('subkategoriLombas')->paginate(15);
-        
-        if (request()->expectsJson()) {
-            return response()->json($kategoris);
+        if ($request->ajax()) {
+            $query = KategoriLomba::withCount('subkategoriLombas');
+            
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->editColumn('created_at', function($row) {
+                    return $row->created_at->format('d/m/Y');
+                })
+                ->addColumn('action', function($row) {
+                    $viewUrl = route('admin.kategori-lomba.show', $row->id);
+                    $editUrl = route('admin.kategori-lomba.edit', $row->id);
+                    $deleteUrl = route('admin.kategori-lomba.destroy', $row->id);
+                    
+                    return '
+                        <div class="d-flex">
+                            <a href="'.$viewUrl.'" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i> Detail</a>
+                            <a href="'.$editUrl.'" class="btn btn-sm btn-warning me-1"><i class="fas fa-edit"></i> Edit</a>
+                            <form method="POST" action="'.$deleteUrl.'" class="d-inline">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm(\'Apakah Anda yakin ingin menghapus kategori ini?\')">
+                                    <i class="fas fa-trash"></i> Hapus
+                                </button>
+                            </form>
+                        </div>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
         }
         
-        return view('admin.kategori-lomba.index', compact('kategoris'));
+        return view('admin.kategori-lomba.index');
     }
     
     public function create()

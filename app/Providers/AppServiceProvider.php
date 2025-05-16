@@ -21,5 +21,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Route::aliasMiddleware('redirectIfAdminAuthenticated', \App\Http\Middleware\RedirectIfAdminAuthenticated::class);
+        Route::aliasMiddleware('admin', \App\Http\Middleware\AuthenticateAdmin::class);
     }
 }

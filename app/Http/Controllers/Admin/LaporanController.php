@@ -9,6 +9,7 @@ use App\Models\Kontingen;
 use App\Models\KategoriLomba;
 use App\Models\KelompokUsia;
 use Illuminate\Http\Request;
+use DataTables;
 use Illuminate\Support\Facades\DB;
 
 class LaporanController extends Controller
@@ -17,51 +18,74 @@ class LaporanController extends Controller
     {
         $query = Peserta::with(['kontingen.pelatih', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
         
-        // Filter by kontingen
-        if ($request->has('kontingen_id')) {
+        // Apply filters
+        if ($request->has('kontingen_id') && $request->kontingen_id) {
             $query->where('kontingen_id', $request->kontingen_id);
         }
         
-        // Filter by kategori
-        if ($request->has('kategori_id')) {
+        if ($request->has('kategori_id') && $request->kategori_id) {
             $query->whereHas('subkategoriLomba', function ($q) use ($request) {
                 $q->where('kategori_id', $request->kategori_id);
             });
         }
         
-        // Filter by kelompok usia
-        if ($request->has('kelompok_usia_id')) {
+        if ($request->has('kelompok_usia_id') && $request->kelompok_usia_id) {
             $query->where('kelompok_usia_id', $request->kelompok_usia_id);
         }
         
-        // Filter by kelas tanding
-        if ($request->has('kelas_tanding_id')) {
-            $query->where('kelas_tanding_id', $request->kelas_tanding_id);
-        }
+        // Get statistics
+        $statistics = [
+            'total_peserta' => (clone $query)->count(),
+            'peserta_valid' => (clone $query)->where('status_verifikasi', 'valid')->count(),
+            'peserta_tidak_valid' => (clone $query)->where('status_verifikasi', 'tidak_valid')->count(),
+            'peserta_pending' => (clone $query)->where('status_verifikasi', 'pending')->count(),
+        ];
         
         // Get filter options
         $kontingens = Kontingen::with('pelatih')->get();
         $kategoris = KategoriLomba::all();
         $kelompokUsias = KelompokUsia::all();
         
-        // Get statistics
-        $statistics = [
-            'total_peserta' => clone $query->count(),
-            'peserta_valid' => clone $query->where('status_verifikasi', 'valid')->count(),
-            'peserta_tidak_valid' => clone $query->where('status_verifikasi', 'tidak_valid')->count(),
-            'peserta_pending' => clone $query->where('status_verifikasi', 'pending')->count(),
-        ];
-        
-        $pesertas = $query->paginate(20);
-        
-        if ($request->expectsJson()) {
-            return response()->json([
-                'pesertas' => $pesertas,
-                'statistics' => $statistics
-            ]);
+        if ($request->ajax() && !$request->has('exportcsv')) {
+            return DataTables::of($query)
+                ->addIndexColumn()
+                ->editColumn('jenis_kelamin', function($row) {
+                    return $row->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan';
+                })
+                ->editColumn('tanggal_lahir', function($row) {
+                    return $row->tanggal_lahir->format('d/m/Y');
+                })
+                ->editColumn('berat_badan', function($row) {
+                    return $row->berat_badan . ' kg';
+                })
+                ->addColumn('kontingen', function($row) {
+                    return $row->kontingen->nama;
+                })
+                ->addColumn('kategori', function($row) {
+                    return $row->subkategoriLomba->kategoriLomba->nama . ' - ' . $row->subkategoriLomba->nama;
+                })
+                ->addColumn('kelas_tanding', function($row) {
+                    return $row->kelasTanding ? $row->kelasTanding->label_keterangan : 'Belum ditentukan';
+                })
+                ->editColumn('status_verifikasi', function($row) {
+                    $badges = [
+                        'valid' => 'success',
+                        'pending' => 'warning',
+                        'tidak_valid' => 'danger'
+                    ];
+                    $badge = $badges[$row->status_verifikasi] ?? 'secondary';
+                    return '<span class="badge bg-'.$badge.'">'.ucfirst($row->status_verifikasi).'</span>';
+                })
+                ->rawColumns(['status_verifikasi'])
+                ->make(true);
         }
         
-        return view('admin.laporan.peserta', compact('pesertas', 'statistics', 'kontingens', 'kategoris', 'kelompokUsias'));
+        // For export CSV
+        if ($request->has('exportcsv')) {
+            return $this->exportPeserta($request);
+        }
+        
+        return view('admin.laporan.peserta', compact('statistics', 'kontingens', 'kategoris', 'kelompokUsias'));
     }
     
     public function pembayaran(Request $request)
