@@ -131,4 +131,27 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     // Admin Logs
     Route::get('logs', [AdminLogController::class, 'index'])->name('admin.logs.index');
     Route::get('logs/{adminLog}', [AdminLogController::class, 'show'])->name('admin.logs.show');
+
+        // React-enabled views
+    Route::get('visualization', [VisualizationController::class, 'index'])->name('admin.visualization.index');
+    Route::get('visualization-data', [VisualizationController::class, 'getData'])->name('admin.visualization.data');
+    
+    // API endpoints for React components
+    Route::get('api/dashboard-stats', [DashboardController::class, 'getStats'])->name('admin.api.dashboard-stats');
+    Route::get('api/peserta', [PesertaController::class, 'getDataForReact'])->name('admin.api.peserta');
+    Route::get('api/schedule', [JadwalPertandinganController::class, 'getDataForReact'])->name('admin.api.schedule');
+    Route::get('api/payments', [PembayaranController::class, 'getDataForReact'])->name('admin.api.payments');
+    
+    // Route for checking compatibility between subkategori and kelompok usia
+    Route::get('check-compatibility', function (Request $request) {
+        $subkategoriId = $request->input('subkategori_id');
+        $kelompokUsiaId = $request->input('kelompok_usia_id');
+        
+        $subkategori = \App\Models\SubkategoriLomba::find($subkategoriId);
+        
+        $compatible = $subkategori && $subkategori->kelompokUsias->contains($kelompokUsiaId);
+        
+        return response()->json(['compatible' => $compatible]);
+    })->name('admin.check-compatibility');
+
 });

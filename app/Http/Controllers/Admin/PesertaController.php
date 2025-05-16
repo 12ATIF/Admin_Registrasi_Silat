@@ -147,4 +147,34 @@ class PesertaController extends Controller
 
         return response()->json(['message' => 'Kelas tanding peserta berhasil di-override.', 'peserta' => $peserta]);
     }
+    public function getDataForReact(Request $request)
+{
+    $query = Peserta::with(['kontingen', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
+    
+    // Apply filters
+    if ($request->has('search') && !empty($request->search)) {
+        $query->where('nama', 'like', "%{$request->search}%");
+    }
+    
+    if ($request->has('status_verifikasi') && !empty($request->status_verifikasi)) {
+        $query->where('status_verifikasi', $request->status_verifikasi);
+    }
+    
+    // Add other filters as needed
+    
+    // Pagination
+    $perPage = $request->input('per_page', 10);
+    $page = $request->input('page', 1);
+    
+    $total = $query->count();
+    $results = $query->skip(($page - 1) * $perPage)->take($perPage)->get();
+    
+    return response()->json([
+        'data' => $results,
+        'total' => $total,
+        'per_page' => $perPage,
+        'current_page' => $page,
+        'last_page' => ceil($total / $perPage)
+    ]);
+}
 }
