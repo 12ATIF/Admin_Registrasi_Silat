@@ -37,14 +37,14 @@ class DashboardController extends Controller
         $pesertaPerKategori = DB::table('peserta')
             ->join('subkategori_lomba', 'peserta.subkategori_id', '=', 'subkategori_lomba.id')
             ->join('kategori_lomba', 'subkategori_lomba.kategori_id', '=', 'kategori_lomba.id')
-            ->select('kategori_lomba.nama', DB::raw('count(peserta.id) as total'))
+            ->select('kategori_lomba.id', 'kategori_lomba.nama', DB::raw('count(peserta.id) as total'))
             ->groupBy('kategori_lomba.id', 'kategori_lomba.nama')
             ->get();
 
         // Peserta per Kelompok Usia
         $pesertaPerUsia = DB::table('peserta')
             ->join('kelompok_usia', 'peserta.kelompok_usia_id', '=', 'kelompok_usia.id')
-            ->select('kelompok_usia.nama', DB::raw('count(peserta.id) as total'))
+            ->select('kelompok_usia.id', 'kelompok_usia.nama', DB::raw('count(peserta.id) as total'))
             ->groupBy('kelompok_usia.id', 'kelompok_usia.nama')
             ->get();
 

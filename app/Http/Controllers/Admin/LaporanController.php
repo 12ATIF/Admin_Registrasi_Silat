@@ -16,29 +16,30 @@ class LaporanController extends Controller
 {
     public function peserta(Request $request)
     {
-        $query = Peserta::with(['kontingen.pelatih', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
+        // Create base query
+        $baseQuery = Peserta::query();
         
-        // Apply filters
+        // Apply filters to base query
         if ($request->has('kontingen_id') && $request->kontingen_id) {
-            $query->where('kontingen_id', $request->kontingen_id);
+            $baseQuery->where('kontingen_id', $request->kontingen_id);
         }
         
         if ($request->has('kategori_id') && $request->kategori_id) {
-            $query->whereHas('subkategoriLomba', function ($q) use ($request) {
+            $baseQuery->whereHas('subkategoriLomba', function ($q) use ($request) {
                 $q->where('kategori_id', $request->kategori_id);
             });
         }
         
         if ($request->has('kelompok_usia_id') && $request->kelompok_usia_id) {
-            $query->where('kelompok_usia_id', $request->kelompok_usia_id);
+            $baseQuery->where('kelompok_usia_id', $request->kelompok_usia_id);
         }
         
-        // Get statistics
+        // Get statistics with separate queries (avoids clone issues)
         $statistics = [
-            'total_peserta' => (clone $query)->count(),
-            'peserta_valid' => (clone $query)->where('status_verifikasi', 'valid')->count(),
-            'peserta_tidak_valid' => (clone $query)->where('status_verifikasi', 'tidak_valid')->count(),
-            'peserta_pending' => (clone $query)->where('status_verifikasi', 'pending')->count(),
+            'total_peserta' => (clone $baseQuery)->count(),
+            'peserta_valid' => (clone $baseQuery)->where('status_verifikasi', 'valid')->count(),
+            'peserta_tidak_valid' => (clone $baseQuery)->where('status_verifikasi', 'tidak_valid')->count(),
+            'peserta_pending' => (clone $baseQuery)->where('status_verifikasi', 'pending')->count(),
         ];
         
         // Get filter options
@@ -46,8 +47,12 @@ class LaporanController extends Controller
         $kategoris = KategoriLomba::all();
         $kelompokUsias = KelompokUsia::all();
         
+        // Create query for DataTables with relationships
+        $dataQuery = clone $baseQuery;
+        $dataQuery->with(['kontingen.pelatih', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
+        
         if ($request->ajax() && !$request->has('exportcsv')) {
-            return DataTables::of($query)
+            return DataTables::of($dataQuery)
                 ->addIndexColumn()
                 ->editColumn('jenis_kelamin', function($row) {
                     return $row->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan';
@@ -90,32 +95,35 @@ class LaporanController extends Controller
     
     public function pembayaran(Request $request)
     {
-        $query = Pembayaran::with(['kontingen.pelatih', 'kontingen.pesertas']);
+        // Create base query
+        $baseQuery = Pembayaran::query();
         
-        // Filter by status
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        // Apply filters
+        if ($request->has('status') && $request->status) {
+            $baseQuery->where('status', $request->status);
         }
         
-        // Filter by kontingen
-        if ($request->has('kontingen_id')) {
-            $query->where('kontingen_id', $request->kontingen_id);
+        if ($request->has('kontingen_id') && $request->kontingen_id) {
+            $baseQuery->where('kontingen_id', $request->kontingen_id);
         }
+        
+        // Get statistics with separate queries
+        $statistics = [
+            'total_pembayaran' => (clone $baseQuery)->count(),
+            'total_tagihan' => (clone $baseQuery)->sum('total_tagihan'),
+            'total_lunas' => (clone $baseQuery)->where('status', 'lunas')->sum('total_tagihan'),
+            'belum_bayar' => (clone $baseQuery)->where('status', 'belum_bayar')->count(),
+            'menunggu_verifikasi' => (clone $baseQuery)->where('status', 'menunggu_verifikasi')->count(),
+            'lunas' => (clone $baseQuery)->where('status', 'lunas')->count(),
+        ];
         
         // Get filter options
         $kontingens = Kontingen::with('pelatih')->get();
         
-        // Get statistics
-        $statistics = [
-            'total_pembayaran' => clone $query->count(),
-            'total_tagihan' => clone $query->sum('total_tagihan'),
-            'total_lunas' => clone $query->where('status', 'lunas')->sum('total_tagihan'),
-            'belum_bayar' => clone $query->where('status', 'belum_bayar')->count(),
-            'menunggu_verifikasi' => clone $query->where('status', 'menunggu_verifikasi')->count(),
-            'lunas' => clone $query->where('status', 'lunas')->count(),
-        ];
-        
-        $pembayarans = $query->paginate(20);
+        // Create query for paginated data with relationships
+        $dataQuery = clone $baseQuery;
+        $dataQuery->with(['kontingen.pelatih', 'kontingen.pesertas']);
+        $pembayarans = $dataQuery->paginate(20);
         
         if ($request->expectsJson()) {
             return response()->json([
@@ -136,28 +144,31 @@ class LaporanController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
         
-        $query = Peserta::with(['kontingen.pelatih', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
+        // Create base query
+        $baseQuery = Peserta::query();
         
-        // Apply filters same as peserta method
-        if ($request->has('kontingen_id')) {
-            $query->where('kontingen_id', $request->kontingen_id);
+        // Apply filters
+        if ($request->has('kontingen_id') && $request->kontingen_id) {
+            $baseQuery->where('kontingen_id', $request->kontingen_id);
         }
         
-        if ($request->has('kategori_id')) {
-            $query->whereHas('subkategoriLomba', function ($q) use ($request) {
+        if ($request->has('kategori_id') && $request->kategori_id) {
+            $baseQuery->whereHas('subkategoriLomba', function ($q) use ($request) {
                 $q->where('kategori_id', $request->kategori_id);
             });
         }
         
-        if ($request->has('kelompok_usia_id')) {
-            $query->where('kelompok_usia_id', $request->kelompok_usia_id);
+        if ($request->has('kelompok_usia_id') && $request->kelompok_usia_id) {
+            $baseQuery->where('kelompok_usia_id', $request->kelompok_usia_id);
         }
         
-        if ($request->has('kelas_tanding_id')) {
-            $query->where('kelas_tanding_id', $request->kelas_tanding_id);
+        if ($request->has('kelas_tanding_id') && $request->kelas_tanding_id) {
+            $baseQuery->where('kelas_tanding_id', $request->kelas_tanding_id);
         }
         
-        $pesertas = $query->get();
+        // Add relationships needed for export
+        $baseQuery->with(['kontingen.pelatih', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);
+        $pesertas = $baseQuery->get();
         
         $callback = function() use ($pesertas) {
             $file = fopen('php://output', 'w');
@@ -211,18 +222,21 @@ class LaporanController extends Controller
             'Content-Disposition' => 'attachment; filename="' . $filename . '"',
         ];
         
-        $query = Pembayaran::with(['kontingen.pelatih', 'kontingen.pesertas']);
+        // Create base query
+        $baseQuery = Pembayaran::query();
         
         // Apply filters
-        if ($request->has('status')) {
-            $query->where('status', $request->status);
+        if ($request->has('status') && $request->status) {
+            $baseQuery->where('status', $request->status);
         }
         
-        if ($request->has('kontingen_id')) {
-            $query->where('kontingen_id', $request->kontingen_id);
+        if ($request->has('kontingen_id') && $request->kontingen_id) {
+            $baseQuery->where('kontingen_id', $request->kontingen_id);
         }
         
-        $pembayarans = $query->get();
+        // Add relationships needed for export
+        $baseQuery->with(['kontingen.pelatih', 'kontingen.pesertas']);
+        $pembayarans = $baseQuery->get();
         
         $callback = function() use ($pembayarans) {
             $file = fopen('php://output', 'w');
