@@ -221,7 +221,7 @@
     <!-- Content -->
     <div class="content d-flex flex-column">
         <!-- Top Navbar -->
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm fixed-top">
+        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm ">
             <div class="container-fluid">
                 <!-- Mobile Menu Toggle Button -->
                 <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">

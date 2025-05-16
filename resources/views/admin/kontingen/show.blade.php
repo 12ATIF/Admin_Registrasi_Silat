@@ -21,7 +21,6 @@
                     </div>
                     <h5>{{ $kontingen->nama }}</h5>
                     <p class="text-muted">{{ $kontingen->asal_daerah }}</p>
-                    <span class="badge {{ $kontingen->
                     <span class="badge {{ $kontingen->is_active ? 'bg-success' : 'bg-danger' }} mb-2">
                         {{ $kontingen->is_active ? 'Aktif' : 'Nonaktif' }}
                     </span>
