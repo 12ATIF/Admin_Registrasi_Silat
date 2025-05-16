@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\Admin\PertandinganController;
 use App\Http\Controllers\Admin\JadwalPertandinganController;
 use App\Http\Controllers\Admin\LaporanController;
 use App\Http\Controllers\Admin\AdminLogController;
+use App\Http\Controllers\Admin\VisualizationController;
 
 Route::get('/', function () {
     return redirect()->route('admin.login.form');

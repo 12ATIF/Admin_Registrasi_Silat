@@ -28,6 +28,9 @@
             box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
             z-index: 100;
         }
+        .main-content {
+            padding-top: 56px; // Reduce to match navbar height
+        }
         @media (min-width: 768px) {
             body {
                 flex-direction: row;
@@ -42,9 +45,10 @@
             }
             .navbar-top {
                 height: 56px;
+                position: relative;
             }
             .main-content {
-                padding-top: 76px;
+                padding-top: 20px;
             }
         }
         .sidebar .nav-link {
