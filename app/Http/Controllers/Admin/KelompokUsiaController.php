@@ -49,7 +49,7 @@ class KelompokUsiaController extends Controller
     
     public function show(KelompokUsia $kelompokUsia)
     {
-        $kelompokUsia->load(['subkategoriLombas', 'kelasTandings', 'aturanUsias']);
+        $kelompokUsia->load(['subkategoriLombas', 'kelasTandings']);
         
         if (request()->expectsJson()) {
             return response()->json($kelompokUsia);

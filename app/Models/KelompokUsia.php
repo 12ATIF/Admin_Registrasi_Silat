@@ -33,10 +33,10 @@ class KelompokUsia extends Model
         return $this->hasMany(Peserta::class);
     }
     
-    public function aturanUsias()
-    {
-        return $this->hasMany(AturanUsia::class);
-    }
+    // public function aturanUsias()
+    // {
+    //     return $this->hasMany(AturanUsia::class);
+    // }
     
     public function aturanKelas()
     {
