@@ -1,5 +1,5 @@
 <?php
-
+// app/Http/Controllers/Admin/PembayaranController.php
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -7,6 +7,7 @@ use App\Models\Pembayaran;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use DataTables;
 
 class PembayaranController extends Controller
@@ -43,12 +44,12 @@ class PembayaranController extends Controller
                 ->editColumn('verified_at', function($row) {
                     return $row->verified_at ? $row->verified_at->format('d/m/Y H:i') : '-';
                 })
-                ->addColumn('kontingen.pesertas_count', function($row) {
+                ->addColumn('pesertas_count', function($row) {
                     return $row->kontingen->pesertas->count();
                 })
                 ->addColumn('action', function($row) {
                     $previewButton = $row->bukti_transfer 
-                        ? '<button class="btn btn-sm btn-info me-1 preview-btn" data-bukti="'.Storage::url($row->bukti_transfer).'">
+                        ? '<button class="btn btn-sm btn-info me-1 preview-btn" data-bukti="'.($row->bukti_transfer ? Storage::url($row->bukti_transfer) : '').'">
                             <i class="fas fa-eye"></i> Lihat Bukti
                            </button>'
                         : '';

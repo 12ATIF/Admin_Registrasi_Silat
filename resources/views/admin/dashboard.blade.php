@@ -196,7 +196,7 @@
     </div>
 </div>
 
-<div class="row">
+{{-- <div class="row">
     <!-- Aktivitas Admin Terbaru -->
     <div class="col-12">
         <div class="card shadow mb-4">
@@ -230,7 +230,7 @@
             </div>
         </div>
     </div>
-</div>
+</div> --}}
 
 <!-- Chart for Registration -->
 <div class="row">

@@ -7,6 +7,7 @@ use App\Models\KelasTanding;
 use App\Models\KelompokUsia;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
+use DataTables; // Pastikan ini diimport jika menggunakan DataTables server-side
 
 class KelasTandingController extends Controller
 {
@@ -14,25 +15,64 @@ class KelasTandingController extends Controller
     
     public function index(Request $request)
     {
-        $query = KelasTanding::with('kelompokUsia');
+        // Jika menggunakan DataTables server-side
+        if ($request->ajax() && $request->wantsJson()) {
+            $query = KelasTanding::with('kelompokUsia')
+                ->withCount('pesertas');
+            
+            if ($request->has('kelompok_usia_id') && $request->kelompok_usia_id) {
+                $query->where('kelompok_usia_id', $request->kelompok_usia_id);
+            }
+            
+            if ($request->has('jenis_kelamin') && $request->jenis_kelamin) {
+                $query->where('jenis_kelamin', $request->jenis_kelamin);
+            }
+            
+            return DataTables::of($query)
+                ->addColumn('action', function($row) {
+                    return '
+                        <div class="btn-group" role="group">
+                            <a href="'.route('admin.kelas-tanding.show', $row->id).'" class="btn btn-sm btn-info">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="'.route('admin.kelas-tanding.edit', $row->id).'" class="btn btn-sm btn-warning">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <form action="'.route('admin.kelas-tanding.destroy', $row->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus kelas ini?\');">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                        </div>
+                    ';
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
         
-        if ($request->has('kelompok_usia_id')) {
+        // Untuk non-AJAX request atau jika tidak menggunakan DataTables server-side
+        $query = KelasTanding::with('kelompokUsia')
+            ->withCount('pesertas');
+        
+        if ($request->has('kelompok_usia_id') && $request->kelompok_usia_id) {
             $query->where('kelompok_usia_id', $request->kelompok_usia_id);
         }
         
-        if ($request->has('jenis_kelamin')) {
+        if ($request->has('jenis_kelamin') && $request->jenis_kelamin) {
             $query->where('jenis_kelamin', $request->jenis_kelamin);
         }
         
-        $kelasTandings = $query->paginate(15);
+        // Urutkan data
+        $query->orderBy('kelompok_usia_id')->orderBy('jenis_kelamin')->orderBy('berat_min');
         
-        if ($request->expectsJson()) {
-            return response()->json($kelasTandings);
-        }
+        $kelasTandings = $query->paginate(15);
         
         return view('admin.kelas-tanding.index', compact('kelasTandings'));
     }
     
+    // Method lainnya tidak berubah
     public function create()
     {
         $kelompokUsias = KelompokUsia::all();

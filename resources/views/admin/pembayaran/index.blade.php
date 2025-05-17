@@ -54,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- DataTables will populate this -->
+                    {{-- DataTables will populate this --}}
                 </tbody>
             </table>
         </div>
@@ -117,82 +117,97 @@
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        // Initialize DataTable
-        var table = $('#pembayaran-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: {
-                url: "{{ route('admin.pembayaran.index') }}",
-                data: function(d) {
-                    d.status = $('#status').val();
-                }
+$(document).ready(function() {
+    // Ensure CSRF token is set for all AJAX requests
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    
+    // Initialize DataTable
+    var table = $('#pembayaran-table').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "{{ route('admin.pembayaran.index') }}",
+            data: function(d) {
+                d.status = $('#status').val();
             },
-            columns: [
-                {data: 'kontingen.nama', name: 'kontingen.nama'},
-                {data: 'kontingen.asal_daerah', name: 'kontingen.asal_daerah'},
-                {data: 'total_tagihan', name: 'total_tagihan'},
-                {data: 'kontingen.pesertas_count', name: 'kontingen.pesertas_count', searchable: false},
-                {data: 'status', name: 'status'},
-                {data: 'verified_at', name: 'verified_at'},
-                {data: 'action', name: 'action', orderable: false, searchable: false},
-            ],
-            order: [[4, 'asc']]
-        });
+            error: function(xhr, error, thrown) {
+                console.log('DataTables error: ' + error + ' - ' + thrown);
+                console.log(xhr.responseText);
+                alert('Error loading data: ' + error);
+            }
+        },
+        columns: [
+            {data: 'kontingen.nama', name: 'kontingen.nama'},
+            {data: 'kontingen.asal_daerah', name: 'kontingen.asal_daerah'},
+            {data: 'total_tagihan', name: 'total_tagihan'},
+            {data: 'pesertas_count', name: 'pesertas_count', searchable: false},
+            {data: 'status', name: 'status'},
+            {data: 'verified_at', name: 'verified_at'},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ],
+        order: [[4, 'asc']]
+    });
+    
+    // Filter handling
+    $('#btn-filter').on('click', function() {
+        table.ajax.reload();
+    });
+    
+    $('#btn-reset').on('click', function() {
+        $('#status').val('');
+        table.ajax.reload();
+    });
+    
+    // Handle bukti preview
+    $('#pembayaran-table').on('click', '.preview-btn', function() {
+        var buktiUrl = $(this).data('bukti');
         
-        // Filter handling
-        $('#btn-filter').on('click', function() {
-            table.ajax.reload();
-        });
+        $('#bukti-preview').attr('src', buktiUrl);
+        $('#previewBuktiModal').modal('show');
+    });
+    
+    // Handle verify button
+    $('#pembayaran-table').on('click', '.verify-btn', function() {
+        var pembayaranId = $(this).data('id');
+        var kontingenNama = $(this).data('kontingen');
+        var totalTagihan = $(this).data('tagihan');
+        var currentStatus = $(this).data('status');
         
-        $('#btn-reset').on('click', function() {
-            $('#status').val('');
-            table.ajax.reload();
-        });
+        var verifyUrl = `{{ route('admin.pembayaran.verify', ':id') }}`.replace(':id', pembayaranId);
         
-        // Handle bukti preview
-        $('#pembayaran-table').on('click', '.preview-btn', function() {
-            var buktiUrl = $(this).data('bukti');
-            
-            $('#bukti-preview').attr('src', buktiUrl);
-            $('#previewBuktiModal').modal('show');
-        });
+        $('#verifikasiForm').attr('action', verifyUrl);
+        $('#kontingen-nama').text(kontingenNama);
+        $('#total-tagihan').text('Rp ' + new Intl.NumberFormat('id-ID').format(totalTagihan));
+        $('#status-select').val(currentStatus);
         
-        // Handle verify button
-        $('#pembayaran-table').on('click', '.verify-btn', function() {
-            var pembayaranId = $(this).data('id');
-            var kontingenNama = $(this).data('kontingen');
-            var totalTagihan = $(this).data('tagihan');
-            var currentStatus = $(this).data('status');
-            
-            var verifyUrl = `{{ route('admin.pembayaran.verify', ':id') }}`.replace(':id', pembayaranId);
-            
-            $('#verifikasiForm').attr('action', verifyUrl);
-            $('#kontingen-nama').text(kontingenNama);
-            $('#total-tagihan').text('Rp ' + new Intl.NumberFormat('id-ID').format(totalTagihan));
-            $('#status-select').val(currentStatus);
-            
-            $('#verifikasiModal').modal('show');
-        });
+        $('#verifikasiModal').modal('show');
+    });
+    
+    // Handle form submission
+    $('#verifikasiForm').on('submit', function(e) {
+        e.preventDefault();
         
-        // Handle form submission
-        $('#verifikasiForm').on('submit', function(e) {
-            e.preventDefault();
-            
-            $.ajax({
-                url: $(this).attr('action'),
-                type: 'PUT',
-                data: $(this).serialize(),
-                success: function(response) {
-                    $('#verifikasiModal').modal('hide');
-                    alert(response.message);
-                    table.ajax.reload();
-                },
-                error: function(xhr) {
-                    alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
-                }
-            });
+        $.ajax({
+            url: $(this).attr('action'),
+            type: 'PUT',
+            data: $(this).serialize(),
+            success: function(response) {
+                $('#verifikasiModal').modal('hide');
+                alert(response.message);
+                table.ajax.reload();
+            },
+            error: function(xhr) {
+                var message = xhr.responseJSON && xhr.responseJSON.message 
+                    ? xhr.responseJSON.message 
+                    : 'Terjadi kesalahan saat memproses permintaan.';
+                alert('Error: ' + message);
+            }
         });
     });
+});
 </script>
 @endpush

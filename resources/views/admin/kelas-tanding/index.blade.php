@@ -105,25 +105,61 @@
             </table>
         </div>
         
-        <div class="mt-3">
-            {{ $kelasTandings->links() }}
-        </div>
+        <!-- Paginasi Laravel -->
+        {{-- <div class="mt-3 d-flex justify-content-center">
+            {{ $kelasTandings->appends(request()->except('page'))->links() }}
+        </div> --}}
     </div>
 </div>
 @endsection
 
 @push('scripts')
 <script>
-    $(document).ready(function() {
-        $('#kelas-table').DataTable({
-            "paging": false,
-            "info": false,
-            "searching": true,
-            "responsive": true,
-            "columnDefs": [
-                { "orderable": false, "targets": 7 }
-            ]
-        });
+$(document).ready(function() {
+    // SOLUSI 2: Menggunakan server-side DataTables
+    $('#kelas-table').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            "url": "{{ route('admin.kelas-tanding.index') }}",
+            "data": function(d) {
+                d.kelompok_usia_id = $('#kelompok_usia_id').val();
+                d.jenis_kelamin = $('#jenis_kelamin').val();
+            }
+        },
+        "columns": [
+            {data: 'kelompok_usia.nama', name: 'kelompokUsia.nama'},
+            {data: 'jenis_kelamin', name: 'jenis_kelamin'},
+            {data: 'kode_kelas', name: 'kode_kelas'},
+            {data: 'berat_min', name: 'berat_min'},
+            {data: 'berat_max', name: 'berat_max'},
+            {data: 'label_keterangan', name: 'label_keterangan'},
+            {data: 'pesertas_count', name: 'pesertas_count'},
+            {data: 'action', name: 'action', orderable: false, searchable: false},
+        ],
+        "responsive": true,
+        "language": {
+            "processing": "Memproses...",
+            "search": "Cari:",
+            "lengthMenu": "Tampilkan _MENU_ data",
+            "info": "Menampilkan _START_ sampai _END_ dari _TOTAL_ data",
+            "infoEmpty": "Menampilkan 0 sampai 0 dari 0 data",
+            "infoFiltered": "(disaring dari _MAX_ data keseluruhan)",
+            "zeroRecords": "Tidak ada data yang sesuai ditemukan",
+            "paginate": {
+                "first": "Pertama",
+                "last": "Terakhir",
+                "next": "Selanjutnya",
+                "previous": "Sebelumnya"
+            }
+        }
     });
+    
+    // Filter handling untuk server-side
+    $('#filter-form').on('submit', function(e) {
+        e.preventDefault();
+        $('#kelas-table').DataTable().ajax.reload();
+    });
+});
 </script>
 @endpush

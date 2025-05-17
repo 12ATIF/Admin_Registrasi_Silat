@@ -16,12 +16,12 @@ class Kontingen extends Model
         'nama',
         'asal_daerah',
         'kontak_pendamping',
-        // 'is_active' // Tambahkan jika ada fitur nonaktifkan
+        'is_active'
     ];
 
-    // protected $casts = [
-    //     'is_active' => 'boolean',
-    // ];
+    protected $casts = [
+        'is_active' => 'boolean',
+    ];
 
     public function pelatih()
     {

@@ -18,7 +18,7 @@ class Pelatih extends Model // atau Authenticatable
         'no_hp',
         'email',
         'password', // Jika pelatih bisa login
-        // 'is_active' // Tambahkan jika ada fitur nonaktifkan
+        'is_active' // Tambahkan jika ada fitur nonaktifkan
     ];
 
     protected $hidden = [
@@ -29,7 +29,7 @@ class Pelatih extends Model // atau Authenticatable
     {
         return [
             'password' => 'hashed', // Jika pelatih bisa login
-            // 'is_active' => 'boolean',
+            'is_active' => 'boolean',
         ];
     }
 
