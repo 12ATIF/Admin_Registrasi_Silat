@@ -112,9 +112,9 @@
                 {data: 'nama', name: 'nama'},
                 {data: 'perguruan', name: 'perguruan'},
                 {data: 'email', name: 'email'},
-                {data: 'no_hp', name: 'no_hp'},
+                {data: 'no_hp', name: 'no_hp', defaultContent: '-'},
                 {data: 'kontingens_count', name: 'kontingens_count'},
-                {data: 'is_active', name: 'is_active'},
+                {data: 'is_active', name: 'is_active', searchable: false},
                 {data: 'action', name: 'action', orderable: false, searchable: false},
             ],
             order: [[0, 'asc']]
@@ -149,6 +149,8 @@
                 data: $(this).serialize(),
                 success: function(response) {
                     $('#resetPasswordModal').modal('hide');
+                    $('#password').val('');
+                    $('#password_confirmation').val('');
                     alert(response.message);
                 },
                 error: function(xhr) {

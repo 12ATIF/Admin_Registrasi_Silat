@@ -1,7 +1,7 @@
 <!-- Sidebar -->
 <div class="sidebar bg-light d-none d-md-flex flex-column flex-shrink-0 p-3">
     <a href="{{ route('admin.dashboard') }}" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-decoration-none">
-        <img src="{{ asset('images/logo.png') }}" alt="Logo" height="40" class="me-2">
+        <img src="{{ asset('https://upload.wikimedia.org/wikipedia/commons/3/35/LogoIPSI_%281%29.png') }}" alt="Logo" height="40" class="me-2">
         <span class="fs-5 fw-semibold">Pencak Silat</span>
     </a>
     <hr>

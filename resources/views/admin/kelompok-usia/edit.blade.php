@@ -10,8 +10,7 @@
 @section('content')
 <div class="card shadow">
     <div class="card-body">
-        <form action="{{ route('admin.kelompok-usia.update', ['kelompok_usium' => $kelompokUsia->id]) }}" method="POST">
-            @csrf
+        <form action="{{ route('admin.kelompok-usia.update', $kelompokUsia) }}" method="POST">
             @method('PUT')
             
             <div class="mb-3">

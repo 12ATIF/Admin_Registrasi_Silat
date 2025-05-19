@@ -48,15 +48,21 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($kelompokUsia->kelasTandings as $kelas)
-                    <tr>
-                        <td>{{ $kelas->kode_kelas }}</td>
-                        <td>{{ ucfirst($kelas->jenis_kelamin) }}</td>
-                        <td>{{ $kelas->berat_min }} kg</td>
-                        <td>{{ $kelas->is_open_class ? 'Open' : $kelas->berat_max.' kg' }}</td>
-                        <td>{{ $kelas->label_keterangan }}</td>
-                    </tr>
-                    @endforeach
+@if($kelompokUsia->kelasTandings->count() > 0)
+    @foreach($kelompokUsia->kelasTandings as $kelas)
+    <tr>
+        <td>{{ $kelas->kode_kelas }}</td>
+        <td>{{ ucfirst($kelas->jenis_kelamin) }}</td>
+        <td>{{ $kelas->berat_min }} kg</td>
+        <td>{{ $kelas->is_open_class ? 'Open' : $kelas->berat_max.' kg' }}</td>
+        <td>{{ $kelas->label_keterangan }}</td>
+    </tr>
+    @endforeach
+@else
+    <tr>
+        <td colspan="5" class="text-center">Tidak ada kelas tanding yang terkait</td>
+    </tr>
+@endif
                 </tbody>
             </table>
         </div>
@@ -65,7 +71,7 @@
             <a href="{{ route('admin.kelompok-usia.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left me-1"></i> Kembali
             </a>
-            <a href="{{ route('admin.kelompok-usia.edit', ['kelompok_usium' => $kelompokUsia->id]) }}" class="btn btn-warning">
+            <a href="{{ route('admin.kelompok-usia.edit', $kelompokUsia) }}" class="btn btn-warning">
             <i class="fas fa-edit me-1"></i> Edit
             </a>
         </div>

@@ -83,7 +83,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     ]);
     
     // Kelompok Usia & Kelas Tanding
-    Route::resource('kelompok-usia', KelompokUsiaController::class)->names([
+    Route::resource('kelompok-usia', KelompokUsiaController::class)
+    ->parameters(['kelompok-usia' => 'kelompokUsia'])
+    ->names([
         'index' => 'admin.kelompok-usia.index',
         'create' => 'admin.kelompok-usia.create',
         'store' => 'admin.kelompok-usia.store',
