@@ -3,7 +3,7 @@ name: Deploy Admin Registrasi Silat to Cloud Run
 on:
   push:
     branches:
-      - main # Atau branch utama Anda, misal 'master' atau 'development'
+      - development # Atau branch utama Anda, misal 'master' atau 'development'
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
