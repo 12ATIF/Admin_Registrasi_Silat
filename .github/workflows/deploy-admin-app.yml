@@ -1,0 +1,101 @@
+name: Deploy Admin Registrasi Silat to Cloud Run
+
+on:
+  push:
+    branches:
+      - main # Atau branch utama Anda, misal 'master' atau 'development'
+
+env:
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  CLOUD_RUN_SERVICE_NAME: 'admin-registrasi-silat' # Nama layanan Cloud Run untuk Admin App
+  CLOUD_RUN_REGION: 'asia-southeast1' # Ganti dengan region Anda
+  ARTIFACT_REGISTRY_REPO: 'admin-silat-images' # Nama repository di Artifact Registry
+  IMAGE_NAME: 'admin-app-silat' # Nama image Docker Anda
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write' # Diperlukan untuk Workload Identity Federation (WIF)
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Otentikasi ke Google Cloud menggunakan Workload Identity Federation (lebih aman)
+      # Pastikan WIF sudah dikonfigurasi di GCP untuk repo GitHub Anda.
+      # Ganti placeholder dengan detail WIF Anda.
+      - name: Authenticate to Google Cloud (Workload Identity Federation)
+        id: auth
+        uses: 'google-github-actions/auth@v2'
+        with:
+          workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_WIF_POOL_ID/providers/YOUR_WIF_PROVIDER_ID' # GANTI DENGAN DETAIL WIF ANDA
+          service_account: 'nama-service-account-github@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com' # GANTI DENGAN EMAIL SERVICE ACCOUNT ANDA
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.GCP_PROJECT_ID }}
+
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev --quiet
+
+      - name: Build Docker image
+        run: |
+          docker build -t ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+            --build-arg APP_ENV=production \
+            .
+        # Dockerfile yang sudah disesuaikan akan menangani build Vite (npm run build)
+
+      - name: Push Docker image to Artifact Registry
+        run: docker push ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
+      # Bagian ini yang paling krusial untuk diperbaiki berdasarkan error Anda
+      - name: Deploy to Cloud Run
+        id: deploy
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: ${{ env.CLOUD_RUN_SERVICE_NAME }}
+          region: ${{ env.CLOUD_RUN_REGION }}
+          image: ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          platform: 'managed'  # Pastikan indentasi ini benar (2 spasi di bawah 'with:')
+          allow_unauthenticated: true # Pastikan indentasi ini benar
+          env_vars: | # Pastikan indentasi ini benar, dan baris berikutnya juga memiliki indentasi yang tepat
+            APP_NAME=Admin Registrasi Silat
+            APP_ENV=production
+            APP_DEBUG=false
+            APP_URL=https://admin.domainanda.com # GANTI DENGAN URL SUBDOMAIN ADMIN ANDA
+            APP_KEY=${{ secrets.APP_KEY_ADMIN }} # WAJIB ada di GitHub Secrets
+            LOG_CHANNEL=stderr
+            DB_CONNECTION=mysql
+            DB_SOCKET=/cloudsql/${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
+            DB_DATABASE=${{ secrets.DB_DATABASE }}
+            DB_USERNAME=${{ secrets.DB_USERNAME }}
+            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+            SESSION_DRIVER=${{ secrets.SESSION_DRIVER_ADMIN || 'cookie' }} # Gunakan secret spesifik jika perlu
+            CACHE_DRIVER=${{ secrets.CACHE_DRIVER_ADMIN || 'file' }}     # Gunakan secret spesifik jika perlu
+            # Tambahkan variabel lain yang dibutuhkan, misal MAIL_*, REDIS_HOST (jika pakai), dll.
+            # Contoh:
+            # MAIL_MAILER=${{ secrets.MAIL_MAILER || 'log' }}
+            # MAIL_HOST=${{ secrets.MAIL_HOST }}
+            # MAIL_PORT=${{ secrets.MAIL_PORT }}
+            # MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
+            # MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
+            # MAIL_ENCRYPTION=${{ secrets.MAIL_ENCRYPTION }}
+            # MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}
+            # MAIL_FROM_NAME="${{ secrets.MAIL_FROM_NAME || env.APP_NAME }}"
+          cloudsql_instances: ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} # Pastikan indentasi ini sejajar dengan 'platform', 'allow_unauthenticated', dll.
+          # Opsi tambahan untuk mengontrol resource Cloud Run (sesuaikan kebutuhan):
+          # memory: '512Mi' # Contoh: 512 Megabytes
+          # cpu: '1' # Contoh: 1 vCPU
+          # min_instances: '0' # Untuk scaling ke nol guna menghemat biaya saat tidak ada traffic
+          # max_instances: '3' # Batasi jumlah instance maksimum
+          # timeout_seconds: '300' # Defaultnya 300 detik (5 menit)
+
+          # Jika Anda menggunakan service account khusus untuk runtime Cloud Run (direkomendasikan)
+          # service_account: 'nama-sa-runtime@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com' # SA ini perlu peran 'Cloud SQL Client'
+
+      # Perbaikan untuk step terakhir
+      - name: Show Deployed URL 
+        run: echo "Admin App Deployed URL: ${{ steps.deploy.outputs.url }}"
