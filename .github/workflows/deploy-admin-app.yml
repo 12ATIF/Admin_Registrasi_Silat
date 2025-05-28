@@ -7,9 +7,9 @@ on:
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  GCP_ARTIFACT_REGISTRY_REGION: 'YOUR_ARTIFACT_REGISTRY_REGION' # misalnya, asia-southeast1
-  GCP_CLOUD_RUN_REGION: 'YOUR_CLOUD_RUN_REGION' # misalnya, asia-southeast1
-  APP_NAME_SLUG: 'admin-app' # Nama image Docker untuk aplikasi admin
+  GCP_ARTIFACT_REGISTRY_REGION: 'asia-southeast2' # misalnya, asia-southeast1
+  GCP_CLOUD_RUN_REGION: 'asia-southeast2' # misalnya, asia-southeast1
+  APP_NAME_SLUG: 'aplikasi-laravel-silat' # Nama image Docker untuk aplikasi admin
   CLOUD_RUN_SERVICE_NAME: 'admin-service' # Nama layanan Cloud Run untuk admin
 
 jobs:
@@ -49,7 +49,7 @@ jobs:
           --platform managed \
           --region ${{ env.GCP_CLOUD_RUN_REGION }} \
           --allow-unauthenticated \
-          --port 8080 \
+          --port 8000 \
           --set-env-vars "APP_ENV=production" \
           --set-env-vars "APP_DEBUG=false" \
           --set-env-vars "APP_URL=${{ secrets.ADMIN_APP_URL }}" \
