@@ -1,101 +1,117 @@
-name: Deploy Admin Registrasi Silat to Cloud Run
+name: Deploy Admin App to Cloud Run
 
 on:
   push:
     branches:
-      - development # Atau branch utama Anda, misal 'master' atau 'development'
+      - development
 
 env:
   GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  CLOUD_RUN_SERVICE_NAME: 'admin-registrasi-silat' # Nama layanan Cloud Run untuk Admin App
-  CLOUD_RUN_REGION: 'asia-southeast1' # Ganti dengan region Anda
-  ARTIFACT_REGISTRY_REPO: 'admin-silat-images' # Nama repository di Artifact Registry
-  IMAGE_NAME: 'admin-app-silat' # Nama image Docker Anda
+  GCP_ARTIFACT_REGISTRY_REGION: 'YOUR_ARTIFACT_REGISTRY_REGION' # misalnya, asia-southeast1
+  GCP_CLOUD_RUN_REGION: 'YOUR_CLOUD_RUN_REGION' # misalnya, asia-southeast1
+  APP_NAME_SLUG: 'admin-app' # Nama image Docker untuk aplikasi admin
+  CLOUD_RUN_SERVICE_NAME: 'admin-service' # Nama layanan Cloud Run untuk admin
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: 'read'
-      id-token: 'write' # Diperlukan untuk Workload Identity Federation (WIF)
+      id-token: 'write'
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      # Otentikasi ke Google Cloud menggunakan Workload Identity Federation (lebih aman)
-      # Pastikan WIF sudah dikonfigurasi di GCP untuk repo GitHub Anda.
-      # Ganti placeholder dengan detail WIF Anda.
-      - name: Authenticate to Google Cloud (Workload Identity Federation)
-        id: auth
-        uses: 'google-github-actions/auth@v2'
-        with:
-          workload_identity_provider: 'projects/YOUR_GCP_PROJECT_NUMBER/locations/global/workloadIdentityPools/YOUR_WIF_POOL_ID/providers/YOUR_WIF_PROVIDER_ID' # GANTI DENGAN DETAIL WIF ANDA
-          service_account: 'nama-service-account-github@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com' # GANTI DENGAN EMAIL SERVICE ACCOUNT ANDA
+    - name: Authenticate to Google Cloud
+      id: auth
+      uses: 'google-github-actions/auth@v2'
+      with:
+        workload_identity_provider: 'projects/${{ secrets.GCP_PROJECT_NUMBER }}/locations/global/workloadIdentityPools/${{ secrets.GCP_WIF_POOL_ID }}/providers/${{ secrets.GCP_WIF_PROVIDER_ID }}'
+        service_account: '${{ secrets.GCP_SERVICE_ACCOUNT_EMAIL }}'
 
-      - name: Set up Cloud SDK
-        uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.GCP_PROJECT_ID }}
+    - name: Set up Cloud SDK
+      uses: 'google-github-actions/setup-gcloud@v2'
 
-      - name: Configure Docker
-        run: gcloud auth configure-docker ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev --quiet
+    - name: Configure Docker
+      run: gcloud auth configure-docker ${{ env.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev --quiet
 
-      - name: Build Docker image
-        run: |
-          docker build -t ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
-            --build-arg APP_ENV=production \
-            .
-        # Dockerfile yang sudah disesuaikan akan menangani build Vite (npm run build)
+    - name: Build and Push Docker image
+      # working-directory: ./ # Tidak perlu jika Dockerfile ada di root repositori ini
+      run: |
+        docker build -t "${{ env.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/laravel-apps/${{ env.APP_NAME_SLUG }}:${{ github.sha }}" .
+        docker push "${{ env.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/laravel-apps/${{ env.APP_NAME_SLUG }}:${{ github.sha }}"
 
-      - name: Push Docker image to Artifact Registry
-        run: docker push ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+    - name: Deploy to Cloud Run
+      run: |
+        gcloud run deploy ${{ env.CLOUD_RUN_SERVICE_NAME }} \
+          --image "${{ env.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/laravel-apps/${{ env.APP_NAME_SLUG }}:${{ github.sha }}" \
+          --platform managed \
+          --region ${{ env.GCP_CLOUD_RUN_REGION }} \
+          --allow-unauthenticated \
+          --port 8080 \
+          --set-env-vars "APP_ENV=production" \
+          --set-env-vars "APP_DEBUG=false" \
+          --set-env-vars "APP_URL=${{ secrets.ADMIN_APP_URL }}" \
+          --set-env-vars "APP_KEY=${{ secrets.ADMIN_APP_KEY }}" \
+          --set-env-vars "DB_CONNECTION=mysql" \
+          --set-env-vars "DB_DATABASE=${{ secrets.DB_DATABASE }}" \
+          --set-env-vars "DB_USERNAME=${{ secrets.DB_USERNAME }}" \
+          --set-env-vars "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" \
+          --set-env-vars "DB_HOST=/cloudsql/${{ secrets.GCP_SQL_INSTANCE_CONNECTION_NAME }}" \
+          --set-env-vars "LOG_CHANNEL=stackdriver" \
+          --set-env-vars "SESSION_DRIVER=database" \
+          --set-env-vars "CACHE_DRIVER=database" \
+          --set-env-vars "FILESYSTEM_DISK=gcs" \
+          --set-env-vars "GOOGLE_CLOUD_PROJECT=${{ env.GCP_PROJECT_ID }}" \
+          --set-env-vars "GCS_BUCKET=${{ secrets.GCS_BUCKET_NAME }}" \
+          --add-cloudsql-instances "${{ secrets.GCP_SQL_INSTANCE_CONNECTION_NAME }}" \
+          --quiet
 
-      # Bagian ini yang paling krusial untuk diperbaiki berdasarkan error Anda
-      - name: Deploy to Cloud Run
-        id: deploy
-        uses: google-github-actions/deploy-cloudrun@v2
-        with:
-          service: ${{ env.CLOUD_RUN_SERVICE_NAME }}
-          region: ${{ env.CLOUD_RUN_REGION }}
-          image: ${{ env.CLOUD_RUN_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/${{ env.ARTIFACT_REGISTRY_REPO }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          platform: 'managed'  # Pastikan indentasi ini benar (2 spasi di bawah 'with:')
-          allow_unauthenticated: true # Pastikan indentasi ini benar
-          env_vars: | # Pastikan indentasi ini benar, dan baris berikutnya juga memiliki indentasi yang tepat
-            APP_NAME=Admin Registrasi Silat
-            APP_ENV=production
-            APP_DEBUG=false
-            APP_URL=https://admin.domainanda.com # GANTI DENGAN URL SUBDOMAIN ADMIN ANDA
-            APP_KEY=${{ secrets.APP_KEY_ADMIN }} # WAJIB ada di GitHub Secrets
-            LOG_CHANNEL=stderr
-            DB_CONNECTION=mysql
-            DB_SOCKET=/cloudsql/${{ secrets.CLOUD_SQL_CONNECTION_NAME }}
-            DB_DATABASE=${{ secrets.DB_DATABASE }}
-            DB_USERNAME=${{ secrets.DB_USERNAME }}
-            DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-            SESSION_DRIVER=${{ secrets.SESSION_DRIVER_ADMIN || 'cookie' }} # Gunakan secret spesifik jika perlu
-            CACHE_DRIVER=${{ secrets.CACHE_DRIVER_ADMIN || 'file' }}     # Gunakan secret spesifik jika perlu
-            # Tambahkan variabel lain yang dibutuhkan, misal MAIL_*, REDIS_HOST (jika pakai), dll.
-            # Contoh:
-            # MAIL_MAILER=${{ secrets.MAIL_MAILER || 'log' }}
-            # MAIL_HOST=${{ secrets.MAIL_HOST }}
-            # MAIL_PORT=${{ secrets.MAIL_PORT }}
-            # MAIL_USERNAME=${{ secrets.MAIL_USERNAME }}
-            # MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}
-            # MAIL_ENCRYPTION=${{ secrets.MAIL_ENCRYPTION }}
-            # MAIL_FROM_ADDRESS=${{ secrets.MAIL_FROM_ADDRESS }}
-            # MAIL_FROM_NAME="${{ secrets.MAIL_FROM_NAME || env.APP_NAME }}"
-          cloudsql_instances: ${{ secrets.CLOUD_SQL_CONNECTION_NAME }} # Pastikan indentasi ini sejajar dengan 'platform', 'allow_unauthenticated', dll.
-          # Opsi tambahan untuk mengontrol resource Cloud Run (sesuaikan kebutuhan):
-          # memory: '512Mi' # Contoh: 512 Megabytes
-          # cpu: '1' # Contoh: 1 vCPU
-          # min_instances: '0' # Untuk scaling ke nol guna menghemat biaya saat tidak ada traffic
-          # max_instances: '3' # Batasi jumlah instance maksimum
-          # timeout_seconds: '300' # Defaultnya 300 detik (5 menit)
+    # === LANGKAH MIGRASI DATABASE (HANYA DI SATU REPOSITORI!) ===
+    # Pilih salah satu repositori (misalnya, admin) untuk menangani migrasi.
+    # Jika ini adalah repositori yang bertanggung jawab:
+    - name: Run Database Migrations (Admin App - Bertanggung Jawab Migrasi)
+      if: success() # Pastikan langkah ini hanya ada di workflow repositori yang dipilih untuk migrasi
+      env:
+          # Perlu ENV VARS ini untuk koneksi database selama migrasi
+          DB_HOST_PLAIN: ${{ secrets.DB_HOST_PLAIN_FOR_MIGRATION }} # IP Publik Cloud SQL atau cara lain untuk terhubung dari runner
+          DB_PORT: ${{ secrets.DB_PORT_FOR_MIGRATION }}
+          # Variabel lain seperti DB_DATABASE, DB_USERNAME, DB_PASSWORD sudah ada di secrets
+      run: |
+        echo "INFO: Menjalankan migrasi database dari repositori admin..."
+        # Pastikan runner GitHub Actions dapat mengakses database Anda.
+        # Ini mungkin memerlukan pembukaan IP runner GitHub Actions di firewall Cloud SQL jika menggunakan IP publik.
+        # Atau, gunakan koneksi melalui Cloud SQL Proxy jika bisa di-setup di runner.
+        # Pendekatan paling sederhana (tapi kurang aman untuk koneksi DB publik):
+        # Ganti DB_HOST di file .env sementara atau set variabel lingkungan langsung
+        # php artisan migrate --force
 
-          # Jika Anda menggunakan service account khusus untuk runtime Cloud Run (direkomendasikan)
-          # service_account: 'nama-sa-runtime@${{ env.GCP_PROJECT_ID }}.iam.gserviceaccount.com' # SA ini perlu peran 'Cloud SQL Client'
+        # Pendekatan yang lebih baik untuk migrasi di CI/CD adalah dengan Cloud Run Job
+        # atau dengan memperbarui sementara layanan Cloud Run untuk menjalankan perintah migrasi seperti contoh sebelumnya.
+        # Karena menjalankan 'php artisan migrate' langsung dari GitHub runner ke Cloud SQL bisa kompleks terkait jaringan/keamanan,
+        # pertimbangkan untuk memicu Cloud Build atau menggunakan gcloud untuk menjalankan perintah di Cloud Run seperti contoh sebelumnya.
 
-      # Perbaikan untuk step terakhir
-      - name: Show Deployed URL 
-        run: echo "Admin App Deployed URL: ${{ steps.deploy.outputs.url }}"
+        # Contoh menggunakan pembaruan layanan Cloud Run (seperti di jawaban sebelumnya):
+        TEMP_IMAGE_FOR_MIGRATION="${{ env.GCP_ARTIFACT_REGISTRY_REGION }}-docker.pkg.dev/${{ env.GCP_PROJECT_ID }}/laravel-apps/${{ env.APP_NAME_SLUG }}:${{ github.sha }}"
+        ORIGINAL_CMD="/usr/bin/supervisord" # Sesuaikan dengan CMD di Dockerfile Anda
+        ORIGINAL_ARGS="-c /etc/supervisord.conf" # Sesuaikan
+
+        gcloud run services update ${{ env.CLOUD_RUN_SERVICE_NAME }} \
+          --image "$TEMP_IMAGE_FOR_MIGRATION" \
+          --region "${{ env.GCP_CLOUD_RUN_REGION }}" \
+          --command "php" \
+          --args "artisan,migrate,--force" \
+          --platform "managed" \
+          --quiet
+
+        sleep 60 # Tunggu migrasi
+
+        gcloud run services update ${{ env.CLOUD_RUN_SERVICE_NAME }} \
+          --image "$TEMP_IMAGE_FOR_MIGRATION" \
+          --region "${{ env.GCP_CLOUD_RUN_REGION }}" \
+          --command "$ORIGINAL_CMD" \
+          --args "$ORIGINAL_ARGS" \
+          --platform "managed" \
+          --quiet
+        echo "INFO: Migrasi database dari repositori admin selesai."
