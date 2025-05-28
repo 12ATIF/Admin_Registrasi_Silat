@@ -66,7 +66,7 @@ COPY .docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 RUN mkdir -p /var/log/supervisor && chown -R www-data:www-data /var/log/supervisor
 
 # Ekspos port yang akan digunakan oleh Nginx di dalam kontainer
-EXPOSE 8080
+EXPOSE 8000
 
 # Jalankan Supervisor
 # CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
