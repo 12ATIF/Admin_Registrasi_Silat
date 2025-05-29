@@ -71,4 +71,5 @@ EXPOSE 8080
 # Jalankan Supervisor
 # CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord.conf"]
 # Atau jika supervisor.conf disalin ke /etc/supervisor/conf.d/supervisord.conf
+CMD ["pnpm", "run", "preview", "--host", "0.0.0.0", "--port", "8080"]
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
