@@ -18,8 +18,8 @@ class PelatihController extends Controller
         if ($request->ajax()) {
             $query = Pelatih::withCount('kontingens');
             
-            if ($request->has('search') && !empty($request->search)) {
-                $search = $request->search;
+            if ($request->has('search_filter') && !empty($request->search_filter)) {
+                $search = $request->search_filter;
                 $query->where(function($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
                       ->orWhere('email', 'like', "%{$search}%")
@@ -27,7 +27,7 @@ class PelatihController extends Controller
                 });
             }
             
-            if ($request->has('is_active') && $request->is_active !== '') {
+            if ($request->filled('is_active')) {
                 $query->where('is_active', $request->is_active);
             }
             

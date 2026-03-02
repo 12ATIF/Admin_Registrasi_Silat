@@ -17,8 +17,8 @@ class KontingenController extends Controller
         if ($request->ajax()) {
             $query = Kontingen::with('pelatih')->withCount('pesertas');
             
-            if ($request->has('search') && !empty($request->search)) {
-                $search = $request->search;
+            if ($request->has('search_filter') && !empty($request->search_filter)) {
+                $search = $request->search_filter;
                 $query->where(function($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
                       ->orWhere('asal_daerah', 'like', "%{$search}%");
@@ -29,7 +29,7 @@ class KontingenController extends Controller
                 $query->where('pelatih_id', $request->pelatih_id);
             }
             
-            if ($request->has('is_active') && $request->is_active !== '') {
+            if ($request->filled('is_active')) {
                 $query->where('is_active', $request->is_active);
             }
             

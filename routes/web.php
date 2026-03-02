@@ -26,7 +26,9 @@ Route::get('/', function () {
 // Guest routes for admin
 Route::prefix('admin')->group(function () {
     Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login.form')->middleware('redirectIfAdminAuthenticated');
-    Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login');
+    Route::post('login', [AdminAuthController::class, 'login'])
+        ->middleware('throttle:5,1') // Rate limit: 5 attempts per minute
+        ->name('admin.login');
 });
 
 // Protected admin routes

@@ -74,7 +74,7 @@
             ajax: {
                 url: "{{ route('admin.kontingen.index') }}",
                 data: function(d) {
-                    d.search = $('#search').val();
+                    d.search_filter = $('#search').val();
                     d.is_active = $('#is_active').val();
                 }
             },
