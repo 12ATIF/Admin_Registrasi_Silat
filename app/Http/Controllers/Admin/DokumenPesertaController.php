@@ -7,7 +7,7 @@ use App\Models\DokumenPeserta;
 use App\Traits\LogsActivity;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use DataTables;
+use Yajra\DataTables\Facades\DataTables;
 
 class DokumenPesertaController extends Controller
 {
@@ -48,6 +48,7 @@ class DokumenPesertaController extends Controller
                 })
                 ->addColumn('action', function($row) {
                     $downloadUrl = route('admin.dokumen.download', $row->id);
+                    $previewUrl = asset('storage/' . $row->file_path);
                     $verifyButton = !$row->verified_at 
                         ? '<button class="btn btn-sm btn-success verify-btn" data-id="'.$row->id.'">
                             <i class="fas fa-check"></i> Verifikasi
@@ -58,7 +59,8 @@ class DokumenPesertaController extends Controller
                         <div class="d-flex">
                             <button class="btn btn-sm btn-info me-1 preview-btn" 
                                 data-file-path="'.$row->file_path.'" 
-                                data-download-url="'.$downloadUrl.'">
+                                data-download-url="'.$downloadUrl.'"
+                                data-preview-url="'.$previewUrl.'">
                                 <i class="fas fa-eye"></i> Preview
                             </button>
                             <a href="'.$downloadUrl.'" class="btn btn-sm btn-primary me-1">
@@ -77,11 +79,21 @@ class DokumenPesertaController extends Controller
     
     public function download(DokumenPeserta $dokumen)
     {
-        if (!Storage::exists($dokumen->file_path)) {
-            abort(404, 'File tidak ditemukan.');
+        // Try public disk first (where uploads typically go), then local/private disk
+        $publicDisk = Storage::disk('public');
+        if ($publicDisk->exists($dokumen->file_path)) {
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $publicDisk */
+            return $publicDisk->download($dokumen->file_path);
         }
         
-        return Storage::download($dokumen->file_path);
+        $localDisk = Storage::disk('local');
+        if ($localDisk->exists($dokumen->file_path)) {
+            /** @var \Illuminate\Filesystem\FilesystemAdapter $localDisk */
+            return $localDisk->download($dokumen->file_path);
+        }
+        
+        // File not found on any disk
+        return redirect()->back()->with('error', 'File dokumen tidak ditemukan di server. Kemungkinan file belum diupload atau telah dihapus.');
     }
     
     public function verify(DokumenPeserta $dokumen)

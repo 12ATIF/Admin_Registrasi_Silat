@@ -115,20 +115,19 @@
         /* Tiger Mascot */
         .tiger-container {
             position: absolute;
-            top: 35%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 450px;
-            height: 450px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
             z-index: 5;
+            line-height: 0; /* Ensures no gap below the image */
+            transform-origin: bottom center;
         }
         
         .tiger-image {
             width: 100%;
             max-width: 420px;
+            vertical-align: bottom;
             filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
         }
         
@@ -139,19 +138,17 @@
             height: 400px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,193,7,0.4) 0%, rgba(255,193,7,0) 70%);
-            top: 35%;
+            bottom: 0;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, 40%);
             z-index: 2;
             animation: pulse 4s infinite ease-in-out;
         }
         
         @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.2; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.4; }
-            100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.2; }
-        }
-            100% { box-shadow: 0 0 10px 3px rgba(255,193,7,0.3); }
+            0% { transform: translate(-50%, 40%) scale(0.9); opacity: 0.2; }
+            50% { transform: translate(-50%, 40%) scale(1.1); opacity: 0.4; }
+            100% { transform: translate(-50%, 40%) scale(0.9); opacity: 0.2; }
         }
         
         /* Particle Effect */
@@ -182,9 +179,9 @@
         
         /* Tiger Animation */
         @keyframes breathing {
-            0% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.03); }
-            100% { transform: translateX(-50%) scale(1); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
         }
         
         .breathing {
@@ -426,19 +423,13 @@
                 font-size: 1.1rem;
             }
             
-            .tiger-container {
-                width: 260px;
-                height: 260px;
-                bottom: -15px;
-            }
-            
             .tiger-image {
-                max-width: 220px;
+                max-width: 250px;
             }
             
             .yellow-glow {
-                width: 220px;
-                height: 220px;
+                width: 250px;
+                height: 250px;
             }
             
             .belt-highlight {
@@ -526,29 +517,27 @@
                 font-size: 0.9rem;
             }
             
-            /* Center mascot absolutely */
+            /* Anchor mascot to bottom of the dark top-banner */
             .tiger-container {
                 position: absolute !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                width: 200px;
-                height: 200px;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100%;
                 margin: 0;
             }
             
             .tiger-image {
-                max-width: 180px;
+                max-width: 200px;
                 width: 100%;
             }
             
             .yellow-glow {
                 position: absolute;
-                top: 50%;
+                bottom: 0;
                 left: 50%;
-                transform: translate(-50%, -50%);
-                width: 180px;
-                height: 180px;
+                transform: translate(-50%, 40%);
+                width: 200px;
+                height: 200px;
             }
             
             .decoration-circle,
