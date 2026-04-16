@@ -43,10 +43,16 @@ COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /entrypoint.sh
 
-# Ensure executable and set permissions
+# Fix PHP upload limits
+RUN echo "upload_max_filesize=10M" > /usr/local/etc/php/conf.d/uploads.ini \
+    && echo "post_max_size=15M" >> /usr/local/etc/php/conf.d/uploads.ini
+
+# Fix nginx tmp permissions and set permissions
 RUN chmod +x /entrypoint.sh \
     && chown -R www-data:www-data /var/www/app \
-    && chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache || true
+    && chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache || true \
+    && chown -R www-data:www-data /var/lib/nginx \
+    && chmod -R 755 /var/lib/nginx
 
 EXPOSE 80
 
