@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model; // Ganti ke Authenticatable jika pelatih bisa login sendiri
+
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Pelatih extends Model // atau Authenticatable
@@ -18,7 +19,8 @@ class Pelatih extends Model // atau Authenticatable
         'no_hp',
         'email',
         'password', // Jika pelatih bisa login
-        'is_active' // Tambahkan jika ada fitur nonaktifkan
+        'is_active', // Tambahkan jika ada fitur nonaktifkan
+        'role', // 'user' — untuk role middleware
     ];
 
     protected $hidden = [

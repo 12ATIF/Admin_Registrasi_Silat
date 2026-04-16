@@ -7,7 +7,7 @@ RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-
 # Stage 2: Production
 FROM php:8.3-fpm-alpine
 
-# Install packages
+# Install ekstensi and packages
 RUN apk add --no-cache \
     bash \
     nginx \
@@ -34,16 +34,16 @@ RUN docker-php-ext-install \
 
 WORKDIR /var/www/app
 
-# Copy application
+# Copy applications
 COPY --from=build /app /var/www/app
 
-# Copy config files
+# Copy settings
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/php-fpm.conf /usr/local/etc/php-fpm.d/www.conf
 COPY docker/supervisord.conf /etc/supervisord.conf
 COPY docker/entrypoint.sh /entrypoint.sh
 
-# Set permissions
+# Ensure executable and set permissions
 RUN chmod +x /entrypoint.sh \
     && chown -R www-data:www-data /var/www/app \
     && chmod -R 775 /var/www/app/storage /var/www/app/bootstrap/cache || true

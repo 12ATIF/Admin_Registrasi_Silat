@@ -14,9 +14,11 @@ class Peserta extends Model
     protected $fillable = [
         'kontingen_id',
         'nama',
+        'nik',
         'jenis_kelamin', // 'L', 'P'
         'tanggal_lahir',
         'berat_badan',
+        'tinggi_badan',
         'subkategori_id',
         'kelompok_usia_id',
         'kelas_tanding_id',
@@ -27,6 +29,7 @@ class Peserta extends Model
     protected $casts = [
         'tanggal_lahir' => 'date',
         'berat_badan' => 'decimal:2',
+        'tinggi_badan' => 'decimal:2',
         'is_manual_override' => 'boolean',
     ];
 
