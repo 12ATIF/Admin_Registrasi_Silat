@@ -36,8 +36,8 @@ jobs:
       - name: Deploy to VPS
         uses: appleboy/ssh-action@v1
         with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
+          host: 103.253.212.243
+          username: root
           key: ${{ secrets.VPS_SSH_KEY }}
           script: |
             docker pull ghcr.io/12atif/admin-registrasi-silat:latest
