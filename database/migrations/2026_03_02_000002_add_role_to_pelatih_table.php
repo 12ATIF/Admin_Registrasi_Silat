@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('pelatih', function (Blueprint $table) {
-            $table->string('role')->default('user')->after('is_active');
-        });
+        if (!Schema::hasColumn('pelatih', 'role')) {
+            Schema::table('pelatih', function (Blueprint $table) {
+                $table->string('role')->default('user')->after('is_active');
+            });
+        }
     }
 
     public function down(): void

@@ -9,8 +9,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('peserta', function (Blueprint $table) {
-            $table->string('nik', 16)->nullable()->after('nama');
-            $table->decimal('tinggi_badan', 5, 2)->nullable()->after('berat_badan');
+            if (!Schema::hasColumn('peserta', 'nik')) {
+                $table->string('nik', 16)->nullable()->after('nama');
+            }
+            if (!Schema::hasColumn('peserta', 'tinggi_badan')) {
+                $table->decimal('tinggi_badan', 5, 2)->nullable()->after('berat_badan');
+            }
         });
     }
 
