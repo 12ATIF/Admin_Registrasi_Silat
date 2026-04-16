@@ -44,6 +44,7 @@ jobs:
             docker stop silat_admin || true
             docker rm silat_admin || true
             docker run -d -p 8001:80 --name silat_admin --network silat_net \
+              -v /var/silat/storage/app/public:/var/www/app/storage/app/public \
               -e APP_ENV=production \
               -e APP_KEY=${{ secrets.APP_KEY_ADMIN }} \
               -e APP_URL=https://admin.unperopen.com \
