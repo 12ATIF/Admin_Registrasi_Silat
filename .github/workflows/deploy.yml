@@ -1,0 +1,47 @@
+name: Deploy Admin Registrasi Silat
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/12atif/admin-registrasi-silat:latest
+
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            docker pull ghcr.io/12atif/admin-registrasi-silat:latest
+            docker stop silat_admin || true
+            docker rm silat_admin || true
+            docker run -d -p 8001:80 --name silat_admin --network silat_net \
+              -e DB_HOST=silat_db \
+              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
+              -e APP_KEY=${{ secrets.APP_KEY_ADMIN }} \
+              -e ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }} \
+              ghcr.io/12atif/admin-registrasi-silat:latest

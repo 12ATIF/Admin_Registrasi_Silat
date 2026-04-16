@@ -134,7 +134,7 @@ $(document).ready(function() {
             {data: 'berat_min', name: 'berat_min'},
             {data: 'berat_max', name: 'berat_max'},
             {data: 'label_keterangan', name: 'label_keterangan'},
-            {data: 'pesertas_count', name: 'pesertas_count'},
+            {data: 'pesertas_count', name: 'pesertas_count', searchable: false},
             {data: 'action', name: 'action', orderable: false, searchable: false},
         ],
         "responsive": true,

@@ -37,24 +37,25 @@
         
         .login-container {
             width: 100%;
-            max-width: 1100px;
-            height: 600px;
+            max-width: 950px;
+            min-height: 480px;
+            max-height: 90vh;
             margin: auto;
             display: flex;
-            border-radius: 24px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.25);
             position: relative;
         }
         
         /* Left side - Graphic Side */
         .graphic-side {
-            flex: 1.2;
+            flex: 1.1;
             background: var(--primary-black);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 40px;
+            padding: 30px;
             color: white;
             position: relative;
             overflow: hidden;
@@ -79,9 +80,9 @@
         }
         
         .login-side {
-            flex: 0.8;
+            flex: 0.9;
             background-color: white;
-            padding: 50px 40px;
+            padding: 35px 30px;
             display: flex;
             flex-direction: column;
             position: relative;
@@ -92,20 +93,20 @@
         .brand-logo {
             display: flex;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 40px;
+            gap: 12px;
+            margin-bottom: 25px;
             position: relative;
             z-index: 10;
         }
         
         .brand-logo-icon {
-            font-size: 2rem;
+            font-size: 1.6rem;
             color: var(--primary-yellow);
         }
         
         .brand-text {
             font-weight: 800;
-            font-size: 1.6rem;
+            font-size: 1.3rem;
             color: var(--primary-yellow);
             letter-spacing: 1px;
             text-transform: uppercase;
@@ -114,61 +115,40 @@
         /* Tiger Mascot */
         .tiger-container {
             position: absolute;
-            bottom: -30px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 420px;
-            height: 420px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
             z-index: 5;
+            line-height: 0; /* Ensures no gap below the image */
+            transform-origin: bottom center;
         }
         
         .tiger-image {
             width: 100%;
-            max-width: 380px;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));
-            transform-origin: bottom center;
+            max-width: 420px;
+            vertical-align: bottom;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.4));
         }
         
         /* Glow Effects */
         .yellow-glow {
             position: absolute;
-            width: 350px;
-            height: 350px;
+            width: 400px;
+            height: 400px;
             border-radius: 50%;
             background: radial-gradient(circle, rgba(255,193,7,0.4) 0%, rgba(255,193,7,0) 70%);
-            top: 65%;
+            bottom: 0;
             left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translate(-50%, 40%);
             z-index: 2;
             animation: pulse 4s infinite ease-in-out;
         }
         
-        .belt-highlight {
-            position: absolute;
-            width: 180px;
-            height: 50px;
-            background-color: rgba(255,193,7,0.3);
-            border-radius: 10px;
-            top: 58%;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            animation: beltGlow 3s infinite ease-in-out;
-        }
-        
         @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.2; }
-            50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.4; }
-            100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.2; }
-        }
-        
-        @keyframes beltGlow {
-            0% { box-shadow: 0 0 10px 3px rgba(255,193,7,0.3); }
-            50% { box-shadow: 0 0 25px 8px rgba(255,193,7,0.6); }
-            100% { box-shadow: 0 0 10px 3px rgba(255,193,7,0.3); }
+            0% { transform: translate(-50%, 40%) scale(0.9); opacity: 0.2; }
+            50% { transform: translate(-50%, 40%) scale(1.1); opacity: 0.4; }
+            100% { transform: translate(-50%, 40%) scale(0.9); opacity: 0.2; }
         }
         
         /* Particle Effect */
@@ -199,9 +179,9 @@
         
         /* Tiger Animation */
         @keyframes breathing {
-            0% { transform: translateX(-50%) scale(1); }
-            50% { transform: translateX(-50%) scale(1.03); }
-            100% { transform: translateX(-50%) scale(1); }
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
         }
         
         .breathing {
@@ -265,11 +245,11 @@
             position: relative;
             z-index: 10;
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
         
         .event-title h1 {
-            font-size: 2.8rem;
+            font-size: 2.2rem;
             font-weight: 800;
             margin: 0;
             line-height: 1;
@@ -286,19 +266,19 @@
         }
         
         .event-title p {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             color: #555;
             font-weight: 500;
-            margin-top: 5px;
+            margin-top: 4px;
         }
         
         /* Form Elements */
         .form-control {
-            height: 55px;
+            height: 46px;
             border-radius: 8px;
             border: 2px solid #eaeaea;
-            padding: 0 20px;
-            font-size: 1rem;
+            padding: 0 16px;
+            font-size: 0.9rem;
             transition: all 0.3s ease;
             background-color: #f9f9f9;
         }
@@ -312,15 +292,15 @@
         .form-label {
             font-weight: 600;
             color: #333;
-            margin-bottom: 8px;
-            font-size: 0.95rem;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
             display: flex;
             align-items: center;
         }
         
         .form-label i {
             color: var(--primary-yellow);
-            margin-right: 8px;
+            margin-right: 6px;
         }
         
         .form-check-input:checked {
@@ -333,10 +313,10 @@
             background-color: var(--primary-black);
             border: 2px solid var(--primary-yellow);
             color: white;
-            padding: 14px;
+            padding: 12px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             letter-spacing: 0.5px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -356,11 +336,11 @@
         }
         
         .btn-silat:hover {
-            transform: translateY(-3px);
+            transform: translateY(-2px);
             background-color: var(--primary-yellow);
             color: var(--primary-black);
             font-weight: 700;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         }
         
         .btn-silat:hover::before {
@@ -411,80 +391,279 @@
             right: -100px;
         }
         
-        /* Responsive Design */
-        @media (max-width: 992px) {
+        /* Responsive Design - For smaller laptop screens */
+        @media (max-height: 750px) {
+            body {
+                padding: 10px;
+            }
+            
             .login-container {
-                flex-direction: column;
-                height: auto;
-                max-width: 600px;
+                max-width: 850px;
+                min-height: auto;
+                max-height: 95vh;
             }
             
             .graphic-side {
-                min-height: 320px;
+                padding: 20px;
             }
             
-            .tiger-container {
-                position: relative;
-                height: 250px;
-                bottom: 0;
-                margin-top: 20px;
+            .login-side {
+                padding: 25px 25px;
+            }
+            
+            .brand-logo {
+                margin-bottom: 15px;
+            }
+            
+            .brand-logo-icon {
+                font-size: 1.4rem;
+            }
+            
+            .brand-text {
+                font-size: 1.1rem;
             }
             
             .tiger-image {
-                max-width: 230px;
-            }
-            
-            .belt-highlight {
-                top: 55%;
-                width: 120px;
-                height: 30px;
+                max-width: 250px;
             }
             
             .yellow-glow {
-                top: 60%;
                 width: 250px;
                 height: 250px;
             }
             
-            .event-title h1 {
-                font-size: 2.2rem;
+            .belt-highlight {
+                width: 110px;
+                height: 32px;
             }
             
-            .event-title p {
-                font-size: 1rem;
-            }
-        }
-        
-        @media (max-width: 576px) {
-            .login-container {
-                border-radius: 16px;
-            }
-            
-            .graphic-side {
-                padding: 30px 20px;
-                min-height: 250px;
-            }
-            
-            .login-side {
-                padding: 30px 20px;
+            .event-title {
+                margin-bottom: 15px;
             }
             
             .event-title h1 {
                 font-size: 1.8rem;
             }
             
+            .event-title p {
+                font-size: 0.85rem;
+            }
+            
+            .form-control {
+                height: 40px;
+                font-size: 0.85rem;
+            }
+            
+            .form-label {
+                margin-bottom: 4px;
+                font-size: 0.8rem;
+            }
+            
+            .mb-3 {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .mb-4 {
+                margin-bottom: 0.85rem !important;
+            }
+            
+            .btn-silat {
+                padding: 10px;
+                font-size: 0.9rem;
+            }
+            
+            .footer-text {
+                font-size: 0.7rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            body {
+                padding: 10px;
+            }
+            
+            .login-container {
+                flex-direction: column;
+                height: auto;
+                max-width: 400px;
+                max-height: none;
+                border-radius: 16px;
+            }
+            
+            .graphic-side {
+                min-height: 250px;
+                padding: 20px;
+                position: relative;
+                overflow: hidden;
+            }
+            
+            /* Hide event title on tablet/mobile */
+            .event-title {
+                display: none !important;
+            }
+            
+            .brand-logo {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                z-index: 10;
+            }
+            
+            .brand-logo-icon {
+                font-size: 1rem;
+            }
+            
+            .brand-text {
+                font-size: 0.9rem;
+            }
+            
+            /* Anchor mascot to bottom of the dark top-banner */
             .tiger-container {
-                height: 180px;
+                position: absolute !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                width: 100%;
+                margin: 0;
             }
             
             .tiger-image {
-                max-width: 180px;
+                max-width: 200px;
+                width: 100%;
             }
             
-            .belt-highlight {
-                top: 53%;
-                width: 80px;
-                height: 20px;
+            .yellow-glow {
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translate(-50%, 40%);
+                width: 200px;
+                height: 200px;
+            }
+            
+            .decoration-circle,
+            .martial-arts-icon {
+                display: none;
+            }
+            
+            .login-side {
+                padding: 20px 18px;
+            }
+            
+            .form-control {
+                height: 40px;
+                font-size: 0.85rem;
+            }
+            
+            .form-label {
+                font-size: 0.8rem;
+                margin-bottom: 4px;
+            }
+            
+            .btn-silat {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
+            
+            .footer-text {
+                font-size: 0.65rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            body {
+                padding: 8px;
+            }
+            
+            .login-container {
+                border-radius: 12px;
+                max-width: 100%;
+            }
+            
+            .graphic-side {
+                padding: 15px 12px;
+                min-height: 140px;
+            }
+            
+            .login-side {
+                padding: 15px 12px;
+            }
+            
+            .brand-logo {
+                margin-bottom: 8px;
+                gap: 8px;
+            }
+            
+            .brand-logo-icon {
+                font-size: 1rem;
+            }
+            
+            .brand-text {
+                font-size: 0.85rem;
+            }
+            
+            .event-title {
+                margin-bottom: 12px;
+            }
+            
+            .event-title h1 {
+                font-size: 1.3rem;
+                letter-spacing: 1px;
+            }
+            
+            .event-title p {
+                font-size: 0.7rem;
+            }
+            
+            .tiger-container {
+                height: 100px;
+                width: 100px;
+                margin: 8px auto;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            
+            .tiger-image {
+                max-width: 90px;
+                display: block;
+                margin: 0 auto;
+            }
+            
+            .yellow-glow {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .form-control {
+                height: 38px;
+                font-size: 0.8rem;
+                padding: 0 12px;
+            }
+            
+            .form-label {
+                font-size: 0.75rem;
+                margin-bottom: 3px;
+            }
+            
+            .mb-3 {
+                margin-bottom: 0.6rem !important;
+            }
+            
+            .mb-4 {
+                margin-bottom: 0.7rem !important;
+            }
+            
+            .btn-silat {
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            .footer-text {
+                font-size: 0.6rem;
+            }
+            
+            .form-check-label {
+                font-size: 0.75rem;
             }
         }
     </style>
@@ -512,7 +691,6 @@
             
             <!-- Glowing elements -->
             <div class="yellow-glow"></div>
-            <div class="belt-highlight"></div>
             
             <!-- Decoration circles -->
             <div class="decoration-circle circle-1"></div>
@@ -520,7 +698,7 @@
             
             <!-- Tiger mascot with animation -->
             <div class="tiger-container breathing">
-                <img src="{{ asset('app/img/MASKOT.png') }}" alt="Tiger Mascot" class="tiger-image">
+                <img src="{{ asset('app/img/MASKOT_web.png') }}" alt="Tiger Mascot" class="tiger-image">
             </div>
         </div>
         

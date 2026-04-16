@@ -104,7 +104,7 @@
             ajax: {
                 url: "{{ route('admin.pelatih.index') }}",
                 data: function(d) {
-                    d.search = $('#search').val();
+                    d.search_filter = $('#search').val();
                     d.is_active = $('#is_active').val();
                 }
             },

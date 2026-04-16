@@ -16,6 +16,7 @@ class Admin extends Authenticatable
         'email',
         'password',
         'role', // 'pendaftaran', 'pertandingan'
+        'app_role', // 'admin' — untuk role middleware
     ];
 
     protected $hidden = [

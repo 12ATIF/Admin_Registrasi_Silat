@@ -1,61 +1,173 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Manajemen Administrasi Registrasi Pencak Silat (UNPER OPEN)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Deskripsi Proyek
 
-## About Laravel
+Aplikasi ini adalah sistem berbasis web yang dirancang untuk membantu panitia dalam mengelola keseluruhan proses administrasi untuk acara kejuaraan pencak silat "UNPER OPEN". Sistem ini mencakup berbagai modul mulai dari manajemen data pelatih, kontingen, peserta, hingga pengaturan pertandingan dan pelaporan.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Sistem ini terdiri dari dua aplikasi Laravel terpisah:
+1.  **Aplikasi Admin:** Digunakan oleh panitia untuk mengelola semua aspek acara.
+2.  **Aplikasi Pelatih:** (Akan dijelaskan lebih lanjut jika ada) Digunakan oleh pelatih untuk mendaftarkan kontingen dan peserta mereka.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Kedua aplikasi ini terhubung ke satu database pusat untuk memastikan integritas dan konsistensi data.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Fitur Utama (Aplikasi Admin)
 
-## Learning Laravel
+Berdasarkan struktur kode yang terlihat (Controllers dan Models):
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* **Dashboard Utama:** Menampilkan statistik ringkas mengenai jumlah peserta, kontingen, status verifikasi, dan status pembayaran.
+* **Manajemen Pelatih:**
+    * Melihat daftar pelatih.
+    * Melihat detail pelatih beserta kontingen yang diasuh.
+    * Reset password pelatih.
+    * Mengaktifkan/menonaktifkan akun pelatih.
+* **Manajemen Kontingen:**
+    * Melihat daftar kontingen beserta pelatih dan asal daerah.
+    * Melihat detail kontingen, termasuk daftar peserta dan status pembayaran.
+    * Mengaktifkan/menonaktifkan kontingen.
+* **Manajemen Peserta:**
+    * Melihat daftar lengkap peserta.
+    * Memfilter peserta berdasarkan kategori, kelompok usia, dan status verifikasi.
+    * Melakukan verifikasi data peserta (valid/tidak valid).
+    * Override (mengubah) kelas tanding peserta jika diperlukan.
+* **Manajemen Dokumen Peserta:**
+    * Melihat daftar dokumen yang diunggah peserta (KTP, Akta, Foto, dll.).
+    * Memfilter dokumen berdasarkan jenis dan status verifikasi.
+    * Melakukan verifikasi dokumen.
+    * Melihat preview dan mengunduh dokumen.
+* **Manajemen Pembayaran:**
+    * Melihat daftar status pembayaran per kontingen.
+    * Memfilter pembayaran berdasarkan status.
+    * Melakukan verifikasi pembayaran (menunggu verifikasi, lunas, belum bayar).
+    * Melihat bukti transfer.
+* **Manajemen Master Data Pertandingan:**
+    * **Kategori Lomba:** CRUD untuk kategori utama (misal: Seni, Tanding).
+    * **Subkategori Lomba:** CRUD untuk subkategori (misal: Tunggal Putra, Ganda Putri, Tanding Kelas A Putra) beserta relasi ke kelompok usia.
+    * **Kelompok Usia:** CRUD untuk kelompok usia peserta (misal: Anak-Anak, Pra Remaja, Remaja, Dewasa, Master).
+    * **Kelas Tanding:** CRUD untuk kelas tanding berdasarkan kelompok usia, jenis kelamin, dan rentang berat badan.
+* **Manajemen Event Pertandingan:**
+    * CRUD untuk data event utama (nama event, tanggal, lokasi).
+* **Manajemen Jadwal Pertandingan:**
+    * CRUD untuk jadwal detail setiap subkategori dan kelompok usia dalam sebuah event.
+    * Visualisasi jadwal dalam bentuk kalender (menggunakan React).
+* **Pelaporan:**
+    * Laporan data peserta dengan filter dan opsi ekspor ke Excel.
+    * Laporan data pembayaran dengan filter dan opsi ekspor ke Excel.
+* **Log Aktivitas Admin:** Mencatat aktivitas penting yang dilakukan oleh admin di sistem.
+* **Visualisasi Data Peserta:** Grafik interaktif untuk menganalisis distribusi peserta (menggunakan React).
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+## Teknologi yang Digunakan
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+* **Backend:** Laravel Framework ^12.0
+* **Frontend:**
+    * Blade Templates
+    * Bootstrap 5
+    * jQuery & DataTables
+    * React.js (untuk beberapa fitur visualisasi dan interaktif)
+    * Vite (untuk asset bundling)
+    * Tailwind CSS (konfigurasi ada, mungkin digunakan untuk komponen React atau bagian tertentu)
+* **Database:** MySQL (diasumsikan, berdasarkan konfigurasi umum Laravel dan seeder).
+* **Versi PHP:** ^8.2
 
-## Laravel Sponsors
+## Prasyarat Sistem
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+* PHP >= 8.2
+* Composer
+* Node.js & NPM (untuk build aset frontend)
+* Database Server (MySQL direkomendasikan)
+* Web Server (Nginx atau Apache dengan konfigurasi yang sesuai untuk Laravel)
 
-### Premium Partners
+## Instalasi Lokal (Untuk Pengembangan)
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+1.  **Clone repository:**
+    ```bash
+    git clone [URL_REPOSITORY_ANDA]
+    cd Admin_Registrasi_Silat
+    ```
 
-## Contributing
+2.  **Install dependensi Composer:**
+    ```bash
+    composer install
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+3.  **Buat file `.env`:**
+    Salin `.env.example` menjadi `.env`.
+    ```bash
+    cp .env.example .env
+    ```
 
-## Code of Conduct
+4.  **Generate kunci aplikasi:**
+    ```bash
+    php artisan key:generate
+    ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+5.  **Konfigurasi file `.env`:**
+    * Atur `DB_CONNECTION`, `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USERNAME`, dan `DB_PASSWORD` sesuai dengan konfigurasi database lokal Anda.
+    * Pastikan `APP_URL` sesuai dengan URL pengembangan lokal Anda (misal: `http://localhost:8000`).
 
-## Security Vulnerabilities
+6.  **Jalankan migrasi database dan seeder:**
+    Migrasi akan membuat struktur tabel yang dibutuhkan.
+    Seeder akan mengisi data awal yang mungkin diperlukan (seperti akun admin default dan master data).
+    ```bash
+    php artisan migrate --seed
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+7.  **Install dependensi NPM dan build aset frontend:**
+    ```bash
+    npm install
+    npm run dev # Untuk pengembangan, atau npm run build untuk build produksi
+    ```
 
-## License
+8.  **(Opsional) Buat symbolic link untuk storage:**
+    Jika Anda menggunakan penyimpanan lokal untuk file yang diunggah dan perlu diakses publik.
+    ```bash
+    php artisan storage:link
+    ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+9.  **Jalankan server development Laravel:**
+    ```bash
+    php artisan serve
+    ```
+    Aplikasi admin biasanya akan dapat diakses di `http://localhost:8000/admin/login`.
+
+## Deployment
+
+Aplikasi ini dirancang untuk dideploy ke Google Cloud Platform (GCP), khususnya menggunakan **Cloud Run** untuk setiap aplikasi (Admin dan Pelatih) yang berjalan pada subdomain berbeda. Database pusat menggunakan **Cloud SQL**.
+
+Proses deployment diotomatisasi menggunakan **GitHub Actions**. Setiap *push* ke *branch* yang ditentukan (misalnya `main` atau `development`) akan memicu *workflow* yang akan:
+1.  Membangun *container image* Docker untuk aplikasi.
+2.  Mendorong *image* tersebut ke Google Artifact Registry.
+3.  Mendeploy revisi baru ke layanan Cloud Run yang sesuai.
+
+File konfigurasi untuk deployment:
+* `Dockerfile`: Mendefinisikan bagaimana *image* aplikasi dibangun.
+* `docker/nginx.conf`: Konfigurasi Nginx untuk melayani aplikasi di dalam container.
+* `docker/supervisor.conf`: Konfigurasi Supervisor untuk mengelola proses Nginx dan PHP-FPM.
+* `.github/workflows/deploy-admin-app.yml`: (Contoh nama) Workflow GitHub Actions untuk otomatisasi build dan deploy.
+
+Variabel lingkungan penting (seperti `APP_KEY`, kredensial database) dikelola sebagai *secrets* di GitHub Actions dan diinjeksikan ke Cloud Run saat deployment.
+
+## Kredensial Login Admin Default (dari Seeder)
+
+* **Email:** `admin@pencaksilat.com`
+* **Password:** `password`
+
+* **Email (Pertandingan):** `pertandingan@pencaksilat.com`
+* **Password (Pertandingan):** `password`
+
+Disarankan untuk segera mengganti password default setelah login pertama kali.
+
+## Kontribusi
+
+(Tambahkan bagian ini jika proyek Anda terbuka untuk kontribusi, jelaskan bagaimana cara berkontribusi, standar coding, dll.)
+
+## Lisensi
+
+Proyek ini menggunakan lisensi MIT. Silakan merujuk ke file `LICENSE.md` (jika ada, atau sebutkan lisensi Laravel default).
+
+---
+
+**Catatan:**
+* Anda perlu membuat file `README.md` ini di *root directory* proyek "Admin Registrasi Silat" Anda.
+* Ganti `[URL_REPOSITORY_ANDA]` dengan URL repository Git Anda yang sebenarnya.
+* Sesuaikan nama file workflow GitHub Actions jika berbeda.
+* Tambahkan detail lain yang spesifik untuk proyek Anda, seperti arsitektur aplikasi pelatih, cara kerja API (jika ada), atau fitur khusus lainnya.

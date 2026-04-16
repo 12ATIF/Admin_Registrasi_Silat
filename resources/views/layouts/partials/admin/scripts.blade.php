@@ -43,6 +43,11 @@
                 extend: 'excel',
                 text: '<i class="fas fa-file-excel me-1"></i> Excel',
                 className: 'btn btn-sm btn-success me-1',
+                filename: function() {
+                    var d = new Date();
+                    var dateStr = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+                    return 'Data_' + document.title.split(' - ')[0].replace(/[^a-zA-Z0-9]/g, '_') + '_' + dateStr;
+                },
                 exportOptions: {
                     columns: ':visible:not(.no-export)'
                 }
