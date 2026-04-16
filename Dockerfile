@@ -9,6 +9,7 @@ FROM php:8.3-fpm-alpine
 
 # Install packages
 RUN apk add --no-cache \
+    bash \
     nginx \
     supervisor \
     postgresql-dev \
