@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->boolean('is_active')->default(true); // Untuk fitur nonaktifkan
+            $table->string('role')->default('user');
             $table->timestamps();
         });
     }
