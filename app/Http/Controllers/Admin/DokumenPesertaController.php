@@ -16,7 +16,7 @@ class DokumenPesertaController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = DokumenPeserta::with(['peserta.kontingen']);
+            $query = DokumenPeserta::with(['peserta.kontingen'])->select('dokumen_peserta.*');
             
             if ($request->has('peserta_id') && $request->peserta_id) {
                 $query->where('peserta_id', $request->peserta_id);
