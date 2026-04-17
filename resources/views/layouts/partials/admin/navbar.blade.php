@@ -7,8 +7,8 @@
         </button>
         
         <!-- Page Title (Mobile Only) -->
-        <a class="navbar-brand d-md-none fw-bold text-white" href="#">
-            <span class="me-2"><i class="fas fa-trophy text-warning"></i></span>
+        <a class="navbar-brand d-md-none fw-bold text-white d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+            <img src="{{ asset('app/img/MASKOT_web.png') }}" alt="Logo" height="32" class="me-2 rounded">
             @yield('title')
         </a>
         

@@ -3,8 +3,8 @@
     <a href="{{ route('admin.dashboard') }}"
         class="sidebar-logo d-flex align-items-center mb-3 me-md-auto text-decoration-none">
         <div class="logo-container d-flex align-items-center">
-            <img src="{{ asset('https://upload.wikimedia.org/wikipedia/commons/3/35/LogoIPSI_%281%29.png') }}"
-                alt="Logo" height="40" class="me-2">
+            <img src="{{ asset('app/img/MASKOT_web.png') }}"
+                alt="Logo" height="40" class="me-2 rounded">
             <div>
                 <span class="fs-5 fw-bold">Pencak Silat</span>
                 <div class="small" style="color: var(--primary);">UNPER OPEN</div>
@@ -165,8 +165,8 @@
 <div class="offcanvas offcanvas-start d-md-none" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel">
     <div class="offcanvas-header">
         <h5 class="offcanvas-title d-flex align-items-center" id="sidebarMenuLabel">
-            <img src="{{ asset('https://upload.wikimedia.org/wikipedia/commons/3/35/LogoIPSI_%281%29.png') }}"
-                alt="Logo" height="30" class="me-2">
+            <img src="{{ asset('app/img/MASKOT_web.png') }}"
+                alt="Logo" height="30" class="me-2 rounded">
             <div>
                 <span>UNPER OPEN V</span>
                 <div style="font-size: 12px; color: #FFC107;">UNPER OPEN</div>
