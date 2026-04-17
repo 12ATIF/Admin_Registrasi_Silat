@@ -19,9 +19,13 @@
                     <select class="form-select" id="jenis_dokumen" name="jenis_dokumen">
                         <option value="">Semua Jenis</option>
                         <option value="KTP">KTP</option>
+                        <option value="Kartu Pelajar">Kartu Pelajar</option>
+                        <option value="Kartu Keluarga">Kartu Keluarga</option>
                         <option value="Akta Lahir">Akta Lahir</option>
+                        <option value="Surat Izin">Surat Izin</option>
                         <option value="Foto">Foto</option>
-                        <option value="Surat Keterangan">Surat Keterangan</option>
+                        <option value="Foto Peserta">Foto Peserta</option>
+                        <option value="Lainnya">Lainnya</option>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
