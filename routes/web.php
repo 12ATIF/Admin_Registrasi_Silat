@@ -43,16 +43,20 @@ Route::prefix('admin')->middleware(['admin', 'role:admin'])->group(function () {
     Route::get('pelatih/{pelatih}', [PelatihController::class, 'show'])->name('admin.pelatih.show');
     Route::put('pelatih/{pelatih}/reset-password', [PelatihController::class, 'resetPassword'])->name('admin.pelatih.reset-password');
     Route::put('pelatih/{pelatih}/toggle-status', [PelatihController::class, 'toggleStatus'])->name('admin.pelatih.toggle-status');
+    Route::delete('pelatih/{pelatih}', [PelatihController::class, 'destroy'])->name('admin.pelatih.destroy');
 
     // Kontingen Management
     Route::get('kontingen', [KontingenController::class, 'index'])->name('admin.kontingen.index');
     Route::get('kontingen/{kontingen}', [KontingenController::class, 'show'])->name('admin.kontingen.show');
     Route::put('kontingen/{kontingen}/toggle-status', [KontingenController::class, 'toggleStatus'])->name('admin.kontingen.toggle-status');
+    Route::delete('kontingen/{kontingen}', [KontingenController::class, 'destroy'])->name('admin.kontingen.destroy');
 
     // Peserta Management
     Route::get('peserta', [PesertaController::class, 'index'])->name('admin.peserta.index');
     Route::put('peserta/{peserta}/verify', [PesertaController::class, 'verify'])->name('admin.peserta.verify');
     Route::put('peserta/{peserta}/override-class', [PesertaController::class, 'overrideClass'])->name('admin.peserta.override-class');
+    Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy'])->name('admin.peserta.destroy');
+    Route::delete('peserta', [PesertaController::class, 'bulkDestroy'])->name('admin.peserta.bulk-destroy');
 
     // Dokumen Management
     Route::get('dokumen', [DokumenPesertaController::class, 'index'])->name('admin.dokumen.index');

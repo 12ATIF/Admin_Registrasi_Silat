@@ -45,10 +45,11 @@ class PelatihController extends Controller
                         : '<button class="btn btn-sm btn-success toggle-status" data-id="'.$row->id.'" data-status="0"><i class="fas fa-check"></i> Aktifkan</button>';
                     
                     return '
-                        <div class="d-flex">
-                            <a href="'.$viewUrl.'" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i> Detail</a>
-                            <button class="btn btn-sm btn-secondary me-1 reset-password" data-id="'.$row->id.'"><i class="fas fa-key"></i> Reset Password</button>
+                        <div class="d-flex flex-wrap gap-1">
+                            <a href="'.$viewUrl.'" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Detail</a>
+                            <button class="btn btn-sm btn-secondary reset-password" data-id="'.$row->id.'"><i class="fas fa-key"></i> Reset Password</button>
                             '.$statusButton.'
+                            <button class="btn btn-sm btn-danger delete-pelatih-btn" data-id="'.$row->id.'" data-nama="'.e($row->nama).'"><i class="fas fa-trash"></i> Hapus</button>
                         </div>
                     ';
                 })
@@ -80,6 +81,26 @@ class PelatihController extends Controller
         return response()->json(['message' => 'Password berhasil direset.']);
     }
     
+    public function destroy(Pelatih $pelatih)
+    {
+        $nama = $pelatih->nama;
+        foreach ($pelatih->kontingens as $kontingen) {
+            foreach ($kontingen->pesertas as $peserta) {
+                $peserta->dokumenPesertas()->delete();
+                $peserta->timAnggota()->delete();
+                $peserta->delete();
+            }
+            $kontingen->pembayarans()->delete();
+            $kontingen->timPesertas()->delete();
+            $kontingen->delete();
+        }
+        $pelatih->delete();
+
+        $this->logActivity('deleted', $pelatih);
+
+        return response()->json(['message' => "Pelatih {$nama} beserta semua data terkait berhasil dihapus."]);
+    }
+
     public function toggleStatus(Pelatih $pelatih)
     {
         $pelatih->is_active = !$pelatih->is_active;

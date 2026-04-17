@@ -47,9 +47,10 @@ class KontingenController extends Controller
                         : '<button class="btn btn-sm btn-success toggle-status" data-id="'.$row->id.'" data-status="0"><i class="fas fa-check"></i> Aktifkan</button>';
                     
                     return '
-                        <div class="d-flex">
-                            <a href="'.$viewUrl.'" class="btn btn-sm btn-info me-1"><i class="fas fa-eye"></i> Detail</a>
+                        <div class="d-flex flex-wrap gap-1">
+                            <a href="'.$viewUrl.'" class="btn btn-sm btn-info"><i class="fas fa-eye"></i> Detail</a>
                             '.$statusButton.'
+                            <button class="btn btn-sm btn-danger delete-kontingen-btn" data-id="'.$row->id.'" data-nama="'.e($row->nama).'"><i class="fas fa-trash"></i> Hapus</button>
                         </div>
                     ';
                 })
@@ -67,6 +68,23 @@ class KontingenController extends Controller
         return view('admin.kontingen.show', compact('kontingen'));
     }
     
+    public function destroy(Kontingen $kontingen)
+    {
+        $nama = $kontingen->nama;
+        foreach ($kontingen->pesertas as $peserta) {
+            $peserta->dokumenPesertas()->delete();
+            $peserta->timAnggota()->delete();
+            $peserta->delete();
+        }
+        $kontingen->pembayarans()->delete();
+        $kontingen->timPesertas()->delete();
+        $kontingen->delete();
+
+        $this->logActivity('deleted', $kontingen);
+
+        return response()->json(['message' => "Kontingen {$nama} beserta semua data terkait berhasil dihapus."]);
+    }
+
     public function toggleStatus(Kontingen $kontingen)
     {
         $kontingen->is_active = !$kontingen->is_active;

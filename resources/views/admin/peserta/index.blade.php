@@ -10,6 +10,9 @@
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
             <h6 class="m-0 font-weight-bold">Filter</h6>
+            <button type="button" id="btn-bulk-delete" class="btn btn-danger btn-sm" style="display:none;">
+                <i class="fas fa-trash"></i> Hapus Terpilih (<span id="selected-count">0</span>)
+            </button>
         </div>
         <div class="card-body">
             <form id="filter-form" method="GET">
@@ -66,6 +69,7 @@
                 <table id="peserta-table" class="table table-bordered table-striped">
                     <thead>
                         <tr>
+                            <th><input type="checkbox" id="select-all"></th>
                             <th>Nama</th>
                             <th>Jenis Kelamin</th>
                             <th>Tanggal Lahir</th>
@@ -136,6 +140,15 @@
                     }
                 },
                 columns: [{
+                        data: 'id',
+                        name: 'id',
+                        orderable: false,
+                        searchable: false,
+                        render: function(data) {
+                            return '<input type="checkbox" class="row-checkbox" value="' + data + '">';
+                        }
+                    },
+                    {
                         data: 'nama',
                         name: 'nama'
                     },
@@ -298,6 +311,63 @@
                     },
                     error: function(xhr) {
                         alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
+                    }
+                });
+            });
+
+            // Handle delete single peserta
+            $('#peserta-table').on('click', '.delete-peserta-btn', function() {
+                var id = $(this).data('id');
+                var nama = $(this).data('nama');
+                if (!confirm('Hapus peserta "' + nama + '"? Semua dokumen terkait akan ikut dihapus.')) return;
+
+                $.ajax({
+                    url: "{{ url('admin/peserta') }}/" + id,
+                    type: 'DELETE',
+                    data: { _token: '{{ csrf_token() }}' },
+                    success: function(response) {
+                        alert(response.message);
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Terjadi kesalahan: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
+                    }
+                });
+            });
+
+            // Checkbox select all
+            $('#select-all').on('change', function() {
+                $('.row-checkbox').prop('checked', this.checked);
+                updateBulkDeleteBtn();
+            });
+
+            $('#peserta-table').on('change', '.row-checkbox', function() {
+                updateBulkDeleteBtn();
+            });
+
+            function updateBulkDeleteBtn() {
+                var count = $('.row-checkbox:checked').length;
+                $('#selected-count').text(count);
+                $('#btn-bulk-delete').toggle(count > 0);
+            }
+
+            // Handle bulk delete
+            $('#btn-bulk-delete').on('click', function() {
+                var ids = $('.row-checkbox:checked').map(function() { return $(this).val(); }).get();
+                if (!confirm('Hapus ' + ids.length + ' peserta terpilih? Semua dokumen terkait akan ikut dihapus.')) return;
+
+                $.ajax({
+                    url: "{{ route('admin.peserta.bulk-destroy') }}",
+                    type: 'DELETE',
+                    data: { _token: '{{ csrf_token() }}', ids: ids },
+                    success: function(response) {
+                        alert(response.message);
+                        $('#select-all').prop('checked', false);
+                        updateBulkDeleteBtn();
+                        table.ajax.reload();
+                    },
+                    error: function(xhr) {
+                        alert('Terjadi kesalahan: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
                     }
                 });
             });
