@@ -9,7 +9,7 @@ done
 echo "Database is ready!"
 
 echo "Running migrations..."
-php artisan migrate
+php artisan migrate --force
 
 echo "Caching config, routes, and views..."
 php artisan config:cache
