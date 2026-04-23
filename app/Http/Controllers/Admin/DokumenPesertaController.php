@@ -48,22 +48,27 @@ class DokumenPesertaController extends Controller
                 })
                 ->addColumn('action', function($row) {
                     $downloadUrl = route('admin.dokumen.download', $row->id);
-                    $previewUrl = asset('storage/' . $row->file_path);
-                    $verifyButton = !$row->verified_at 
-                        ? '<button class="btn btn-sm btn-success verify-btn" data-id="'.$row->id.'">
+                    $previewUrl  = asset('storage/' . $row->file_path);
+                    $safeId      = (int) $row->id;
+                    $safeFile    = htmlspecialchars($row->file_path, ENT_QUOTES, 'UTF-8');
+                    $safeDown    = htmlspecialchars($downloadUrl, ENT_QUOTES, 'UTF-8');
+                    $safePreview = htmlspecialchars($previewUrl, ENT_QUOTES, 'UTF-8');
+
+                    $verifyButton = !$row->verified_at
+                        ? '<button class="btn btn-sm btn-success verify-btn" data-id="'.$safeId.'">
                             <i class="fas fa-check"></i> Verifikasi
                           </button>'
                         : '';
-                    
+
                     return '
                         <div class="d-flex">
-                            <button class="btn btn-sm btn-info me-1 preview-btn" 
-                                data-file-path="'.$row->file_path.'" 
-                                data-download-url="'.$downloadUrl.'"
-                                data-preview-url="'.$previewUrl.'">
+                            <button class="btn btn-sm btn-info me-1 preview-btn"
+                                data-file-path="'.$safeFile.'"
+                                data-download-url="'.$safeDown.'"
+                                data-preview-url="'.$safePreview.'">
                                 <i class="fas fa-eye"></i> Preview
                             </button>
-                            <a href="'.$downloadUrl.'" class="btn btn-sm btn-primary me-1">
+                            <a href="'.$safeDown.'" class="btn btn-sm btn-primary me-1">
                                 <i class="fas fa-download"></i> Download
                             </a>
                             '.$verifyButton.'

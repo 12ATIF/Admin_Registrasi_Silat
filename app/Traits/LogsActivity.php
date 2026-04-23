@@ -32,27 +32,28 @@ trait LogsActivity
     {
         if (Auth::guard('admin')->check()) {
             AdminLog::create([
-                'admin_id' => Auth::guard('admin')->id(),
-                'aksi' => $action,
-                'model' => get_class($model),
-                'model_id' => $model->id,
+                'admin_id'   => Auth::guard('admin')->id(),
+                'aksi'       => $action,
+                'model'      => get_class($model),
+                'model_id'   => $model->id,
                 'waktu_aksi' => now(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
             ]);
         }
     }
 
-    /**
-     * Log aktivitas khusus (non-model)
-     */
     public function logActivity($action, $model = null)
     {
         if (Auth::guard('admin')->check()) {
             AdminLog::create([
-                'admin_id' => Auth::guard('admin')->id(),
-                'aksi' => $action,
-                'model' => $model ? get_class($model) : null,
-                'model_id' => $model ? $model->id : null,
+                'admin_id'   => Auth::guard('admin')->id(),
+                'aksi'       => $action,
+                'model'      => $model ? get_class($model) : null,
+                'model_id'   => $model ? $model->id : null,
                 'waktu_aksi' => now(),
+                'ip_address' => request()->ip(),
+                'user_agent' => request()->header('User-Agent'),
             ]);
         }
     }

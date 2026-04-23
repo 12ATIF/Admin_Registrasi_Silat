@@ -98,7 +98,7 @@ class KelasTandingController extends Controller
             'is_open_class' => 'boolean',
         ]);
         
-        $kelasTanding = KelasTanding::create($request->all());
+        $kelasTanding = KelasTanding::create($request->validated());
         
         $this->logActivity('created', $kelasTanding);
         
@@ -138,7 +138,7 @@ class KelasTandingController extends Controller
             'is_open_class' => 'boolean',
         ]);
         
-        $kelasTanding->update($request->all());
+        $kelasTanding->update($request->validated());
         
         $this->logActivity('updated', $kelasTanding);
         

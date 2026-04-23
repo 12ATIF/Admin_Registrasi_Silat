@@ -60,7 +60,7 @@ class JadwalPertandinganController extends Controller
             'lokasi_detail' => 'nullable|string|max:255',
         ]);
         
-        $jadwal = JadwalPertandingan::create($request->all());
+        $jadwal = JadwalPertandingan::create($request->validated());
         
         $this->logActivity('created', $jadwal);
         
@@ -114,7 +114,7 @@ class JadwalPertandinganController extends Controller
             'lokasi_detail' => 'nullable|string|max:255',
         ]);
         
-        $jadwalPertandingan->update($request->all());
+        $jadwalPertandingan->update($request->validated());
         
         $this->logActivity('updated', $jadwalPertandingan);
         

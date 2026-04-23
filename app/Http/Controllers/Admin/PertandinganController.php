@@ -37,7 +37,7 @@ class PertandinganController extends Controller
             'lokasi_umum' => 'required|string|max:255',
         ]);
         
-        $pertandingan = Pertandingan::create($request->all());
+        $pertandingan = Pertandingan::create($request->validated());
         
         $this->logActivity('created', $pertandingan);
         
@@ -82,7 +82,7 @@ class PertandinganController extends Controller
             'lokasi_umum' => 'required|string|max:255',
         ]);
         
-        $pertandingan->update($request->all());
+        $pertandingan->update($request->validated());
         
         $this->logActivity('updated', $pertandingan);
         

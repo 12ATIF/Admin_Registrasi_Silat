@@ -147,21 +147,24 @@ Route::prefix('admin')->middleware(['admin', 'role:admin'])->group(function () {
     Route::get('visualization-data', [VisualizationController::class, 'getData'])->name('admin.visualization.data');
 
     // API endpoints for React components
-    Route::get('api/dashboard-stats', [DashboardController::class, 'getStats'])->name('admin.api.dashboard-stats');
-    Route::get('api/peserta', [PesertaController::class, 'getDataForReact'])->name('admin.api.peserta');
-    Route::get('api/schedule', [JadwalPertandinganController::class, 'getDataForReact'])->name('admin.api.schedule');
-    Route::get('api/payments', [PembayaranController::class, 'getDataForReact'])->name('admin.api.payments');
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('api/dashboard-stats', [DashboardController::class, 'getStats'])->name('admin.api.dashboard-stats');
+        Route::get('api/peserta', [PesertaController::class, 'getDataForReact'])->name('admin.api.peserta');
+        Route::get('api/schedule', [JadwalPertandinganController::class, 'getDataForReact'])->name('admin.api.schedule');
+        Route::get('api/payments', [PembayaranController::class, 'getDataForReact'])->name('admin.api.payments');
+    });
 
     // Route for checking compatibility between subkategori and kelompok usia
     Route::get('check-compatibility', function (Request $request) {
-        $subkategoriId = $request->input('subkategori_id');
-        $kelompokUsiaId = $request->input('kelompok_usia_id');
+        $request->validate([
+            'subkategori_id'   => 'required|integer|exists:subkategori_lomba,id',
+            'kelompok_usia_id' => 'required|integer|exists:kelompok_usia,id',
+        ]);
 
-        $subkategori = \App\Models\SubkategoriLomba::find($subkategoriId);
-
-        $compatible = $subkategori && $subkategori->kelompokUsias->contains($kelompokUsiaId);
+        $subkategori = \App\Models\SubkategoriLomba::find($request->integer('subkategori_id'));
+        $compatible  = $subkategori && $subkategori->kelompokUsias->contains($request->integer('kelompok_usia_id'));
 
         return response()->json(['compatible' => $compatible]);
-    })->name('admin.check-compatibility');
+    })->middleware('throttle:60,1')->name('admin.check-compatibility');
 
 });
