@@ -760,7 +760,7 @@
                     </label>
                 </div>
                 
-                <button class="btn btn-silat w-100 py-3 mb-4" type="submit">
+                <button id="submitBtn" class="btn btn-silat w-100 py-3 mb-4" type="submit">
                     <i class="fas fa-sign-in-alt me-2"></i>Masuk ke Sistem
                 </button>
             </form>
@@ -814,6 +814,12 @@
                     createParticle();
                 }, duration * 1000);
             }
+        });
+        // Prevent double submit
+        document.querySelector('form').addEventListener('submit', function() {
+            var btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>MEMPROSES...';
         });
     </script>
 </body>
