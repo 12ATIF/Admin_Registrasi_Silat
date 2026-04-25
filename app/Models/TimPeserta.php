@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class TimPeserta extends Model
 {
-    //
+    protected $table = 'tim_peserta';
 }

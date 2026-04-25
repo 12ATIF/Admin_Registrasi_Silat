@@ -1,23 +1,23 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\AdminLogController;
 use App\Http\Controllers\Admin\Auth\AdminAuthController;
 use App\Http\Controllers\Admin\DashboardController;
-use App\Http\Controllers\Admin\PelatihController;
-use App\Http\Controllers\Admin\KontingenController;
-use App\Http\Controllers\Admin\PesertaController;
 use App\Http\Controllers\Admin\DokumenPesertaController;
-use App\Http\Controllers\Admin\PembayaranController;
-use App\Http\Controllers\Admin\KategoriLombaController;
-use App\Http\Controllers\Admin\SubkategoriLombaController;
-use App\Http\Controllers\Admin\KelompokUsiaController;
-use App\Http\Controllers\Admin\KelasTandingController;
-use App\Http\Controllers\Admin\PertandinganController;
 use App\Http\Controllers\Admin\JadwalPertandinganController;
+use App\Http\Controllers\Admin\KategoriLombaController;
+use App\Http\Controllers\Admin\KelasTandingController;
+use App\Http\Controllers\Admin\KelompokUsiaController;
+use App\Http\Controllers\Admin\KontingenController;
 use App\Http\Controllers\Admin\LaporanController;
-use App\Http\Controllers\Admin\AdminLogController;
+use App\Http\Controllers\Admin\PelatihController;
+use App\Http\Controllers\Admin\PembayaranController;
+use App\Http\Controllers\Admin\PertandinganController;
+use App\Http\Controllers\Admin\PesertaController;
+use App\Http\Controllers\Admin\SubkategoriLombaController;
 use App\Http\Controllers\Admin\VisualizationController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect()->route('admin.login.form');
@@ -26,41 +26,47 @@ Route::get('/', function () {
 // Guest routes for admin
 Route::prefix('admin')->group(function () {
     Route::get('login', [AdminAuthController::class, 'showLoginForm'])->name('admin.login.form')->middleware('redirectIfAdminAuthenticated');
-    Route::post('login', [AdminAuthController::class, 'login'])->name('admin.login');
+    Route::post('login', [AdminAuthController::class, 'login'])
+        ->middleware('throttle:5,1') // Rate limit: 5 attempts per minute
+        ->name('admin.login');
 });
 
 // Protected admin routes
-Route::prefix('admin')->middleware('admin')->group(function () {
+Route::prefix('admin')->middleware(['admin', 'role:admin'])->group(function () {
     Route::post('logout', [AdminAuthController::class, 'logout'])->name('admin.logout');
-    
+
     // Dashboard
     Route::get('dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
-    
+
     // Pelatih Management
     Route::get('pelatih', [PelatihController::class, 'index'])->name('admin.pelatih.index');
     Route::get('pelatih/{pelatih}', [PelatihController::class, 'show'])->name('admin.pelatih.show');
     Route::put('pelatih/{pelatih}/reset-password', [PelatihController::class, 'resetPassword'])->name('admin.pelatih.reset-password');
     Route::put('pelatih/{pelatih}/toggle-status', [PelatihController::class, 'toggleStatus'])->name('admin.pelatih.toggle-status');
-    
+    Route::delete('pelatih/{pelatih}', [PelatihController::class, 'destroy'])->name('admin.pelatih.destroy');
+
     // Kontingen Management
     Route::get('kontingen', [KontingenController::class, 'index'])->name('admin.kontingen.index');
     Route::get('kontingen/{kontingen}', [KontingenController::class, 'show'])->name('admin.kontingen.show');
     Route::put('kontingen/{kontingen}/toggle-status', [KontingenController::class, 'toggleStatus'])->name('admin.kontingen.toggle-status');
-    
+    Route::delete('kontingen/{kontingen}', [KontingenController::class, 'destroy'])->name('admin.kontingen.destroy');
+
     // Peserta Management
     Route::get('peserta', [PesertaController::class, 'index'])->name('admin.peserta.index');
     Route::put('peserta/{peserta}/verify', [PesertaController::class, 'verify'])->name('admin.peserta.verify');
     Route::put('peserta/{peserta}/override-class', [PesertaController::class, 'overrideClass'])->name('admin.peserta.override-class');
-    
+    Route::delete('peserta/{peserta}', [PesertaController::class, 'destroy'])->name('admin.peserta.destroy');
+    Route::delete('peserta', [PesertaController::class, 'bulkDestroy'])->name('admin.peserta.bulk-destroy');
+
     // Dokumen Management
     Route::get('dokumen', [DokumenPesertaController::class, 'index'])->name('admin.dokumen.index');
     Route::get('dokumen/{dokumen}/download', [DokumenPesertaController::class, 'download'])->name('admin.dokumen.download');
     Route::put('dokumen/{dokumen}/verify', [DokumenPesertaController::class, 'verify'])->name('admin.dokumen.verify');
-    
+
     // Pembayaran Management
     Route::get('pembayaran', [PembayaranController::class, 'index'])->name('admin.pembayaran.index');
     Route::put('pembayaran/{pembayaran}/verify', [PembayaranController::class, 'verifyPayment'])->name('admin.pembayaran.verify');
-    
+
     // Kategori & Subkategori Management
     Route::resource('kategori-lomba', KategoriLombaController::class)->names([
         'index' => 'admin.kategori-lomba.index',
@@ -71,7 +77,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.kategori-lomba.update',
         'destroy' => 'admin.kategori-lomba.destroy',
     ]);
-    
+
     Route::resource('subkategori-lomba', SubkategoriLombaController::class)->names([
         'index' => 'admin.subkategori-lomba.index',
         'create' => 'admin.subkategori-lomba.create',
@@ -81,20 +87,20 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.subkategori-lomba.update',
         'destroy' => 'admin.subkategori-lomba.destroy',
     ]);
-    
+
     // Kelompok Usia & Kelas Tanding
     Route::resource('kelompok-usia', KelompokUsiaController::class)
-    ->parameters(['kelompok-usia' => 'kelompokUsia'])
-    ->names([
-        'index' => 'admin.kelompok-usia.index',
-        'create' => 'admin.kelompok-usia.create',
-        'store' => 'admin.kelompok-usia.store',
-        'show' => 'admin.kelompok-usia.show',
-        'edit' => 'admin.kelompok-usia.edit',
-        'update' => 'admin.kelompok-usia.update',
-        'destroy' => 'admin.kelompok-usia.destroy',
-    ]);
-    
+        ->parameters(['kelompok-usia' => 'kelompokUsia'])
+        ->names([
+            'index' => 'admin.kelompok-usia.index',
+            'create' => 'admin.kelompok-usia.create',
+            'store' => 'admin.kelompok-usia.store',
+            'show' => 'admin.kelompok-usia.show',
+            'edit' => 'admin.kelompok-usia.edit',
+            'update' => 'admin.kelompok-usia.update',
+            'destroy' => 'admin.kelompok-usia.destroy',
+        ]);
+
     Route::resource('kelas-tanding', KelasTandingController::class)->names([
         'index' => 'admin.kelas-tanding.index',
         'create' => 'admin.kelas-tanding.create',
@@ -104,7 +110,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.kelas-tanding.update',
         'destroy' => 'admin.kelas-tanding.destroy',
     ]);
-    
+
     // Pertandingan & Jadwal
     Route::resource('pertandingan', PertandinganController::class)->names([
         'index' => 'admin.pertandingan.index',
@@ -115,7 +121,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.pertandingan.update',
         'destroy' => 'admin.pertandingan.destroy',
     ]);
-    
+
     Route::resource('jadwal-pertandingan', JadwalPertandinganController::class)->names([
         'index' => 'admin.jadwal-pertandingan.index',
         'create' => 'admin.jadwal-pertandingan.create',
@@ -125,37 +131,40 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         'update' => 'admin.jadwal-pertandingan.update',
         'destroy' => 'admin.jadwal-pertandingan.destroy',
     ]);
-    
+
     // Laporan
     Route::get('laporan/peserta', [LaporanController::class, 'peserta'])->name('admin.laporan.peserta');
     Route::get('laporan/pembayaran', [LaporanController::class, 'pembayaran'])->name('admin.laporan.pembayaran');
     Route::get('laporan/export-peserta', [LaporanController::class, 'exportPeserta'])->name('admin.laporan.export-peserta');
     Route::get('laporan/export-pembayaran', [LaporanController::class, 'exportPembayaran'])->name('admin.laporan.export-pembayaran');
-    
+
     // Admin Logs
     Route::get('logs', [AdminLogController::class, 'index'])->name('admin.logs.index');
     Route::get('logs/{adminLog}', [AdminLogController::class, 'show'])->name('admin.logs.show');
 
-        // React-enabled views
+    // React-enabled views
     Route::get('visualization', [VisualizationController::class, 'index'])->name('admin.visualization.index');
     Route::get('visualization-data', [VisualizationController::class, 'getData'])->name('admin.visualization.data');
-    
+
     // API endpoints for React components
-    Route::get('api/dashboard-stats', [DashboardController::class, 'getStats'])->name('admin.api.dashboard-stats');
-    Route::get('api/peserta', [PesertaController::class, 'getDataForReact'])->name('admin.api.peserta');
-    Route::get('api/schedule', [JadwalPertandinganController::class, 'getDataForReact'])->name('admin.api.schedule');
-    Route::get('api/payments', [PembayaranController::class, 'getDataForReact'])->name('admin.api.payments');
-    
+    Route::middleware('throttle:60,1')->group(function () {
+        Route::get('api/dashboard-stats', [DashboardController::class, 'getStats'])->name('admin.api.dashboard-stats');
+        Route::get('api/peserta', [PesertaController::class, 'getDataForReact'])->name('admin.api.peserta');
+        Route::get('api/schedule', [JadwalPertandinganController::class, 'getDataForReact'])->name('admin.api.schedule');
+        Route::get('api/payments', [PembayaranController::class, 'getDataForReact'])->name('admin.api.payments');
+    });
+
     // Route for checking compatibility between subkategori and kelompok usia
     Route::get('check-compatibility', function (Request $request) {
-        $subkategoriId = $request->input('subkategori_id');
-        $kelompokUsiaId = $request->input('kelompok_usia_id');
-        
-        $subkategori = \App\Models\SubkategoriLomba::find($subkategoriId);
-        
-        $compatible = $subkategori && $subkategori->kelompokUsias->contains($kelompokUsiaId);
-        
+        $request->validate([
+            'subkategori_id'   => 'required|integer|exists:subkategori_lomba,id',
+            'kelompok_usia_id' => 'required|integer|exists:kelompok_usia,id',
+        ]);
+
+        $subkategori = \App\Models\SubkategoriLomba::find($request->integer('subkategori_id'));
+        $compatible  = $subkategori && $subkategori->kelompokUsias->contains($request->integer('kelompok_usia_id'));
+
         return response()->json(['compatible' => $compatible]);
-    })->name('admin.check-compatibility');
+    })->middleware('throttle:60,1')->name('admin.check-compatibility');
 
 });

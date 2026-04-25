@@ -104,7 +104,7 @@
             ajax: {
                 url: "{{ route('admin.pelatih.index') }}",
                 data: function(d) {
-                    d.search = $('#search').val();
+                    d.search_filter = $('#search').val();
                     d.is_active = $('#is_active').val();
                 }
             },
@@ -155,6 +155,26 @@
                 },
                 error: function(xhr) {
                     alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
+                }
+            });
+        });
+
+        // Delete Pelatih
+        $('#pelatih-table').on('click', '.delete-pelatih-btn', function() {
+            var id = $(this).data('id');
+            var nama = $(this).data('nama');
+            if (!confirm('PERINGATAN: Hapus pelatih "' + nama + '"?\n\nSemua kontingen, peserta, dan dokumen terkait akan ikut dihapus permanen!')) return;
+
+            $.ajax({
+                url: "{{ url('admin/pelatih') }}/" + id,
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    alert(response.message);
+                    table.ajax.reload();
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
                 }
             });
         });

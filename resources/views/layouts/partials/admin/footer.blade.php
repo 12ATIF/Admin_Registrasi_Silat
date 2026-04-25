@@ -1,5 +1,5 @@
 <!-- Footer -->
-<footer class="bg-white py-3 px-3 px-md-4 mt-auto shadow-sm">
+<footer class="custom-footer py-3 px-3 px-md-4 mt-auto shadow-sm text-light">
     <div class="container-fluid">
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
             <div class="text-center text-md-start">

@@ -15,8 +15,8 @@ class KelasTandingController extends Controller
     
     public function index(Request $request)
     {
-        // Jika menggunakan DataTables server-side
-        if ($request->ajax() && $request->wantsJson()) {
+        // Handle AJAX requests
+        if ($request->ajax() || $request->wantsJson()) {
             $query = KelasTanding::with('kelompokUsia')
                 ->withCount('pesertas');
             
@@ -27,29 +27,36 @@ class KelasTandingController extends Controller
             if ($request->has('jenis_kelamin') && $request->jenis_kelamin) {
                 $query->where('jenis_kelamin', $request->jenis_kelamin);
             }
-            
-            return DataTables::of($query)
-                ->addColumn('action', function($row) {
-                    return '
-                        <div class="btn-group" role="group">
-                            <a href="'.route('admin.kelas-tanding.show', $row->id).'" class="btn btn-sm btn-info">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <a href="'.route('admin.kelas-tanding.edit', $row->id).'" class="btn btn-sm btn-warning">
-                                <i class="fas fa-edit"></i>
-                            </a>
-                            <form action="'.route('admin.kelas-tanding.destroy', $row->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus kelas ini?\');">
-                                '.csrf_field().'
-                                '.method_field('DELETE').'
-                                <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    ';
-                })
-                ->rawColumns(['action'])
-                ->make(true);
+
+            // If this is a DataTables request (has 'draw' parameter), return DataTables format
+            if ($request->has('draw')) {
+                return DataTables::of($query)
+                    ->addColumn('action', function($row) {
+                        return '
+                            <div class="btn-group" role="group">
+                                <a href="'.route('admin.kelas-tanding.show', $row->id).'" class="btn btn-sm btn-info">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="'.route('admin.kelas-tanding.edit', $row->id).'" class="btn btn-sm btn-warning">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="'.route('admin.kelas-tanding.destroy', $row->id).'" method="POST" class="d-inline" onsubmit="return confirm(\'Apakah Anda yakin ingin menghapus kelas ini?\');">
+                                    '.csrf_field().'
+                                    '.method_field('DELETE').'
+                                    <button type="submit" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        ';
+                    })
+                    ->rawColumns(['action'])
+                    ->make(true);
+            }
+
+            // Simple JSON response (for peserta override kelas dropdown, etc.)
+            $query->orderBy('kelompok_usia_id')->orderBy('jenis_kelamin')->orderBy('berat_min');
+            return response()->json(['data' => $query->get()]);
         }
         
         // Untuk non-AJAX request atau jika tidak menggunakan DataTables server-side
@@ -91,7 +98,7 @@ class KelasTandingController extends Controller
             'is_open_class' => 'boolean',
         ]);
         
-        $kelasTanding = KelasTanding::create($request->all());
+        $kelasTanding = KelasTanding::create($request->validated());
         
         $this->logActivity('created', $kelasTanding);
         
@@ -131,7 +138,7 @@ class KelasTandingController extends Controller
             'is_open_class' => 'boolean',
         ]);
         
-        $kelasTanding->update($request->all());
+        $kelasTanding->update($request->validated());
         
         $this->logActivity('updated', $kelasTanding);
         

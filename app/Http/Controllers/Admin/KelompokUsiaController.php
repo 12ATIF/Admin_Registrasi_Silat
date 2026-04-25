@@ -36,7 +36,7 @@ class KelompokUsiaController extends Controller
             'rentang_usia_max' => 'required|integer|gt:rentang_usia_min',
         ]);
         
-        $kelompokUsia = KelompokUsia::create($request->all());
+        $kelompokUsia = KelompokUsia::create($request->validated());
         
         $this->logActivity('created', $kelompokUsia);
         
@@ -71,7 +71,7 @@ class KelompokUsiaController extends Controller
             'rentang_usia_max' => 'required|integer|gt:rentang_usia_min',
         ]);
         
-        $kelompokUsia->update($request->all());
+        $kelompokUsia->update($request->validated());
         
         $this->logActivity('updated', $kelompokUsia);
         

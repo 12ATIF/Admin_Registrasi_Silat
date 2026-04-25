@@ -19,9 +19,13 @@
                     <select class="form-select" id="jenis_dokumen" name="jenis_dokumen">
                         <option value="">Semua Jenis</option>
                         <option value="KTP">KTP</option>
+                        <option value="Kartu Pelajar">Kartu Pelajar</option>
+                        <option value="Kartu Keluarga">Kartu Keluarga</option>
                         <option value="Akta Lahir">Akta Lahir</option>
+                        <option value="Surat Izin">Surat Izin</option>
                         <option value="Foto">Foto</option>
-                        <option value="Surat Keterangan">Surat Keterangan</option>
+                        <option value="Foto Peserta">Foto Peserta</option>
+                        <option value="Lainnya">Lainnya</option>
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
@@ -133,6 +137,7 @@
         $('#dokumen-table').on('click', '.preview-btn', function() {
             var filePath = $(this).data('file-path');
             var downloadUrl = $(this).data('download-url');
+            var previewUrl = $(this).data('preview-url');
             var fileExtension = filePath.split('.').pop().toLowerCase();
             
             $('#download-link').attr('href', downloadUrl);
@@ -143,12 +148,12 @@
             // Create preview based on file type
             if (fileExtension === 'pdf') {
                 $('#preview-container').html(`
-                    <object data="${downloadUrl}" type="application/pdf" width="100%" height="500px">
+                    <object data="${previewUrl}" type="application/pdf" width="100%" height="500px">
                         <p>Your browser doesn't support PDF preview. <a href="${downloadUrl}">Download instead</a>.</p>
                     </object>
                 `);
             } else if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
-                $('#preview-container').html(`<img src="${downloadUrl}" alt="Preview" class="img-fluid">`);
+                $('#preview-container').html(`<img src="${previewUrl}" alt="Preview" class="img-fluid">`);
             } else {
                 $('#preview-container').html(`
                     <div class="alert alert-info">

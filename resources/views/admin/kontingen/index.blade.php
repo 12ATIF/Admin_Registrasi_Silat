@@ -74,7 +74,7 @@
             ajax: {
                 url: "{{ route('admin.kontingen.index') }}",
                 data: function(d) {
-                    d.search = $('#search').val();
+                    d.search_filter = $('#search').val();
                     d.is_active = $('#is_active').val();
                 }
             },
@@ -105,6 +105,26 @@
             $('#search').val('');
             $('#is_active').val('');
             table.ajax.reload();
+        });
+
+        // Delete Kontingen
+        $('#kontingen-table').on('click', '.delete-kontingen-btn', function() {
+            var id = $(this).data('id');
+            var nama = $(this).data('nama');
+            if (!confirm('PERINGATAN: Hapus kontingen "' + nama + '"?\n\nSemua peserta dan dokumen terkait akan ikut dihapus permanen!')) return;
+
+            $.ajax({
+                url: "{{ url('admin/kontingen') }}/" + id,
+                type: 'DELETE',
+                data: { _token: '{{ csrf_token() }}' },
+                success: function(response) {
+                    alert(response.message);
+                    table.ajax.reload();
+                },
+                error: function(xhr) {
+                    alert('Terjadi kesalahan: ' + (xhr.responseJSON ? xhr.responseJSON.message : 'Unknown error'));
+                }
+            });
         });
 
         // Toggle Status

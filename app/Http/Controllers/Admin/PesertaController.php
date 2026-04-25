@@ -86,9 +86,9 @@ class PesertaController extends Controller
                     </div>';
                     
                     $overrideButton = '
-                    <button class="btn btn-sm btn-warning override-kelas-btn mb-1" 
-                        data-id="'.$row->id.'" 
-                        data-nama="'.$row->nama.'" 
+                    <button class="btn btn-sm btn-warning override-kelas-btn mb-1"
+                        data-id="'.$row->id.'"
+                        data-nama="'.$row->nama.'"
                         data-berat="'.$row->berat_badan.'"
                         data-kelompok-usia-id="'.$row->kelompok_usia_id.'"
                         data-jenis-kelamin="'.$row->jenis_kelamin.'"
@@ -96,8 +96,13 @@ class PesertaController extends Controller
                         data-kelas-tanding-name="'.($row->kelasTanding ? $row->kelasTanding->label_keterangan : '-').'">
                         <i class="fas fa-exchange-alt"></i> Ubah Kelas
                     </button>';
-                    
-                    return '<div class="d-flex flex-column">'.$verifyButtons.$overrideButton.'</div>';
+
+                    $deleteButton = '
+                    <button class="btn btn-sm btn-danger delete-peserta-btn mt-1" data-id="'.$row->id.'" data-nama="'.$row->nama.'">
+                        <i class="fas fa-trash"></i> Hapus
+                    </button>';
+
+                    return '<div class="d-flex flex-column">'.$verifyButtons.$overrideButton.$deleteButton.'</div>';
                 })
                 ->rawColumns(['status_verifikasi', 'kelas_tanding', 'action'])
                 ->make(true);
@@ -147,6 +152,33 @@ class PesertaController extends Controller
 
         return response()->json(['message' => 'Kelas tanding peserta berhasil di-override.', 'peserta' => $peserta]);
     }
+    public function destroy(Peserta $peserta)
+    {
+        $nama = $peserta->nama;
+        $peserta->dokumenPesertas()->delete();
+        $peserta->timAnggota()->delete();
+        $peserta->delete();
+
+        $this->logActivity('deleted', $peserta);
+
+        return response()->json(['message' => "Peserta {$nama} berhasil dihapus."]);
+    }
+
+    public function bulkDestroy(Request $request)
+    {
+        $request->validate(['ids' => 'required|array', 'ids.*' => 'exists:peserta,id']);
+
+        $pesertas = Peserta::whereIn('id', $request->ids)->get();
+        foreach ($pesertas as $peserta) {
+            $peserta->dokumenPesertas()->delete();
+            $peserta->timAnggota()->delete();
+            $peserta->delete();
+            $this->logActivity('deleted', $peserta);
+        }
+
+        return response()->json(['message' => count($request->ids) . ' peserta berhasil dihapus.']);
+    }
+
     public function getDataForReact(Request $request)
 {
     $query = Peserta::with(['kontingen', 'subkategoriLomba.kategoriLomba', 'kelompokUsia', 'kelasTanding']);

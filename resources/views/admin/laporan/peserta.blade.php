@@ -150,13 +150,16 @@
                     <tr>
                         <th>No</th>
                         <th>Nama</th>
+                        <th>NIK</th>
                         <th>Jenis Kelamin</th>
                         <th>Tanggal Lahir</th>
                         <th>Berat Badan</th>
+                        <th>Tinggi Badan</th>
                         <th>Kontingen</th>
                         <th>Kategori</th>
                         <th>Kelompok Usia</th>
                         <th>Kelas Tanding</th>
+                        <th>Dokumen</th>
                         <th>Status</th>
                     </tr>
                 </thead>
@@ -187,13 +190,16 @@
             columns: [
                 {data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false},
                 {data: 'nama', name: 'nama'},
+                {data: 'nik', name: 'nik'},
                 {data: 'jenis_kelamin', name: 'jenis_kelamin'},
                 {data: 'tanggal_lahir', name: 'tanggal_lahir'},
                 {data: 'berat_badan', name: 'berat_badan'},
+                {data: 'tinggi_badan', name: 'tinggi_badan'},
                 {data: 'kontingen', name: 'kontingen.nama'},
                 {data: 'kategori', name: 'subkategoriLomba.kategoriLomba.nama'},
                 {data: 'kelompok_usia.nama', name: 'kelompokUsia.nama'},
                 {data: 'kelas_tanding', name: 'kelasTanding.label_keterangan'},
+                {data: 'dokumen', name: 'dokumen', orderable: false, searchable: false},
                 {data: 'status_verifikasi', name: 'status_verifikasi'},
             ],
             order: [[1, 'asc']],

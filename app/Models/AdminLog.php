@@ -18,7 +18,8 @@ class AdminLog extends Model
         'model',
         'model_id',
         'waktu_aksi',
-        // 'perubahan', // Jika Anda menambahkannya
+        'ip_address',
+        'user_agent',
     ];
 
     protected $casts = [

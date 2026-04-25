@@ -16,14 +16,8 @@ class TandingCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        // Clear tables to avoid duplicate entries on re-run
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        KelasTanding::truncate();
-        KelompokUsia::truncate();
-        SubkategoriLomba::truncate();
-        KategoriLomba::truncate();
-        DB::table('subkategori_usia')->truncate();
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        // Clear tables to avoid duplicate entries on re-run (PostgreSQL)
+        DB::statement('TRUNCATE TABLE kelas_tanding, subkategori_usia, kelas_tanding, kelompok_usia, subkategori_lomba, kategori_lomba RESTART IDENTITY CASCADE');
 
         // Create main categories
         $kategoriSeni = KategoriLomba::create([

@@ -1,14 +1,14 @@
 <!-- Top Navbar -->
-<nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top">
+<nav class="navbar navbar-expand-md navbar-dark custom-navbar">
     <div class="container-fluid">
         <!-- Mobile Menu Toggle Button -->
         <button class="navbar-toggler border-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
-            <i class="fas fa-bars text-dark"></i>
+            <i class="fas fa-bars text-white"></i>
         </button>
         
         <!-- Page Title (Mobile Only) -->
-        <a class="navbar-brand d-md-none fw-bold" href="#">
-            <span class="me-2"><i class="fas fa-trophy text-warning"></i></span>
+        <a class="navbar-brand d-md-none fw-bold text-white d-flex align-items-center" href="{{ route('admin.dashboard') }}">
+            <img src="{{ asset('app/img/MASKOT_web.png') }}" alt="Logo" height="32" class="me-2 rounded">
             @yield('title')
         </a>
         
@@ -17,7 +17,7 @@
             <!-- Notifications Dropdown -->
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle position-relative" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    <i class="fas fa-bell fa-lg text-muted"></i>
+                    <i class="fas fa-bell fa-lg text-white"></i>
                     @if(App\Models\Peserta::where('status_verifikasi', 'pending')->count() > 0 || 
                         App\Models\Pembayaran::where('status', 'menunggu_verifikasi')->count() > 0)
                         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
